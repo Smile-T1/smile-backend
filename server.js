@@ -1,41 +1,28 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const mongoose = require('mongoose');
-require('dotenv').config();
+import express from "express";
+import dotenv from "dotenv";
+import mongoose  from "mongoose";
+import authRoutes from "./routes/auth.routes.js"
 
-mongoose.connect(process.env.MONGO_URI, {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
-    // useCreateIndex: true
-});
+dotenv.config();
 
+mongoose.connect(process.env.MONGO_URI);
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB!');
-})
+  });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(bodyParser.json());
-app.use(cors());
+app.use(express.json())
 
-function loadRoutes(directory) {
-    fs.readdirSync(directory).forEach((file) => {
-      const filePath = path.join(directory, file);
-      const route = require(filePath);
-      app.use('/', route);
-    });
-}
-  
-  
-// Load routes from the 'routes' directory
-const routesDirectory = path.join(__dirname, 'routes');
-loadRoutes(routesDirectory);
+app.use("/api/auth", authRoutes);
+
+// app.get("/", (req, res) => {
+//     // root route http://localhost:5000/
+//     res.send("Hello World!");
+// })
+
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`)
 });
-module.exports = app;
