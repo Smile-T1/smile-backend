@@ -34,14 +34,14 @@ const userSchema = new mongoose.Schema(
       required: true,
       validate: [validator.isEmail, 'Please provide a valid email'],
     },
-    mobile: {
-      type: String,
-      required: true,
-      validate: [validator.isMobilePhone, 'Please provide a valid mobile number'],
-    },
+    mobile: [
+      {
+        type: String,
+        validate: [validator.isMobilePhone, 'Please provide a valid mobile number'],
+      },
+    ],
     dob: {
       type: Date,
-      required: true,
     },
     address: {
       type: String,
