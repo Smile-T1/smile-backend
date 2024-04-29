@@ -8,9 +8,31 @@ const patientSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    maritalStatus: {
+      type: String,
+      enum: ['Single', 'Married', 'Divorced', 'Widowed'],
+      default: 'Single',
+    },
+    occupation: {
+      type: String,
+    },
+    medicalRecord: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'MedicalRecord',
+        required: true,
+        unique: true,
+        index: true,
+        sparse: true,
+        autopopulate: true,
+        autopopulateSelect: 'patient',
+        default: [],
+      },
+    ],
     // Additional attributes for patients
-    medicalHistory: {
-      type: Array,
+    bloodType: {
+      type: String,
+      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
     },
   },
   { timestamps: true },
