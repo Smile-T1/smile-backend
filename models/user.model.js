@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema(
     access: {
       type: String,
       required: true,
-      enum: ['Patient', 'Doctor', 'Admin'],
+      enum: ['Patient', 'Dentist', 'Admin'],
     },
     // patientHistory: {
     //     type: Array
