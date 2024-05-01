@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.routes.js';
+import doctorRouter from './routes/doctor.router.js';
 
 dotenv.config();
 
@@ -11,11 +12,12 @@ mongoose.connection.once('open', () => {
 });
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/doctor', doctorRouter);
 
 // app.get("/", (req, res) => {
 //     // root route http://localhost:5000/
