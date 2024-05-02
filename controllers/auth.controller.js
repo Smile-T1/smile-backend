@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import User from '../models/user.model.js';
 import Patient from '../models/patient.model.js';
+import Doctor from '../models/doctor.model.js';
 import generateTokenAndSetCookie from '../utils/generateToken.js';
 
 dotenv.config();
@@ -16,8 +17,8 @@ export const login = async (req, res) => {
     if (!user || !isPasswordCorrect) {
       return res.status(400).json({ error: 'Invalid username or password' });
     }
-
-    generateTokenAndSetCookie(user._id, res);
+   
+    generateTokenAndSetCookie(user._id,user.access, res);
 
     res.status(200).json({
       _id: user._id,
@@ -152,5 +153,68 @@ export const patientRegister = async (req, res) => {
   } catch (error) {
     console.error('Error in registering patient: ', error);
     res.status(500).json({ error: 'Register patient controller error' });
+  }
+};
+
+export const doctorRegister = async (req, res) => {
+  const { firstName, lastName, gender, email, mobile, dob, address, speciality } = req.body;
+
+  try {
+    // generate username from email (first part before)
+    const username = email.split('@')[0];
+
+    // generate a random password
+    const password = Math.random().toString(36).slice(-8);
+    // HASH PASSWORD HERE
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = new User({
+      firstName,
+      lastName,
+      username,
+      password: hashedPassword,
+      gender,
+      email,
+      mobile,
+      dob,
+      address,
+      access: 'Doctor',
+    });
+    const savedUser = await newUser.save();
+
+    const newDoctor = new Doctor({
+      user: savedUser._id,
+      speciality,
+    });
+    const savedDoctor = await newDoctor.save();
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Welcome to smile clinic',
+      text: `Dear ${firstName},\n\nWelcome to our system!\n\nYour username is: ${username}\nYour password is: ${password}\n\nPlease keep your credentials secure.\n\nBest regards,\nThe Team`,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error('Error sending email: ', err);
+      } else {
+        console.log('Email sent: ', info.response);
+      }
+    });
+
+    res.status(201).json({ user: savedUser, doctor: savedDoctor });
+  } catch (error) {
+    console.error('Error in registering doctor: ', error);
+    res.status(500).json({ error: 'Register doctor controller error' });
   }
 };

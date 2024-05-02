@@ -18,7 +18,7 @@ const authCheck = (req, res, next) => {
     return res.status(401).json({ message: 'Unauthorized!' });
   }
 
-  req.userId = decodedToken._id;
+  req.userId = decodedToken.userId;
   req.roleaccess = decodedToken.access;
   next();
 };
