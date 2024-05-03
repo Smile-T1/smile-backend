@@ -1,4 +1,4 @@
-import appError from './app-error';
+import appError from './app-error.js';
 
 export async function validaterequest(schema, fields, abortEarly = false) {
   try {

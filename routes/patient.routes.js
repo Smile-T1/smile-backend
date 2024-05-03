@@ -1,22 +1,12 @@
 import express from 'express';
-import validateResource from '../middleware/validateResource';
-import patientAppointmentSchema from '../schemas/appointment.schema';
-import authCheck from '../middleware/auth/is-auth';
-import checkPatient from '../middleware/auth/is-patient';
-import { getPatientInfoHandler, bookAppointmentHandler } from '../controllers/patient.controller';
-import uploadfile from '../middleware/multer/uploadReport';
-import uploadSingleCloudinary from '../middleware/cloudinary/uploadToCloudinary';
+import authCheck from '../middleware/auth/is-auth.js';
+import checkPatient from '../middleware/auth/is-patient.js';
+import { getPatientInfoHandler, bookAppointmentHandler } from '../controllers/patient.controller.js';
+import uploadfile from '../middleware/multer/uploadReport.js';
+import uploadSingleCloudinary from '../middleware/cloudinary/uploadToCloudinary.js';
 const router = express.Router();
 
-router.get('/patient/appointment', authCheck, checkPatient, getPatientInfoHandler);
-router.post(
-  '/patient/appointment',
-  authCheck,
-  checkPatient,
-  uploadfile,
-  uploadSingleCloudinary,
-  validateResource(patientAppointmentSchema),
-  bookAppointmentHandler,
-);
+router.get('/appointment', authCheck, checkPatient, getPatientInfoHandler);
+router.post('/appointment', authCheck, checkPatient, uploadfile, uploadSingleCloudinary, bookAppointmentHandler);
 
 export default router;

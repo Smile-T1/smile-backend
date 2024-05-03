@@ -1,4 +1,4 @@
-import Patient from '../models/patient.model';
+import Patient from '../models/patient.model.js';
 
 //services ---> deal with db directly
 export function findPatientById(id) {

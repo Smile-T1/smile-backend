@@ -1,7 +1,7 @@
-import Doctor from '../models/doctor.model';
-import appError from '../utils/app-error';
+import Doctor from '../models/doctor.model.js';
+import appError from '../utils/app-error.js';
 
-const findDoctorIdByUsername = async (doctorUsername) => {
+export async function findDoctorIdByUsername(doctorUsername) {
   // Find the doctor by username by populating the 'user' field
   try {
     const doctor = await Doctor.findOne({}).populate({
@@ -18,6 +18,4 @@ const findDoctorIdByUsername = async (doctorUsername) => {
     console.error('Error finding doctor ID by username:', error);
     throw new appError('Failed to find doctor', 500);
   }
-};
-
-export default { findDoctorIdByUsername };
+}

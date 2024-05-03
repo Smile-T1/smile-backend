@@ -19,6 +19,8 @@ const uploadSingleCloudinary = asyncHandler(async (req, res, next) => {
       });
     }
     res.locals.report = result.secure_url;
+    console.log(res.locals.report);
+    console.log('nice');
     next();
   } catch (error) {
     res.status(500).json({
