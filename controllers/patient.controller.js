@@ -1,6 +1,7 @@
 import Patient from '../models/patient.model.js';
 import findDoctorIdByUsername from '../services/doctor.service.js';
 import createAppointment from '../services/appointment.service.js';
+
 export async function getPatientInfoHandler(req, res) {
   try {
     const patientId = req.userId;
