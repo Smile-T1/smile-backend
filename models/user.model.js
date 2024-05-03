@@ -51,9 +51,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       enum: ['Patient', 'Dentist', 'Admin'],
     },
-    // patientHistory: {
-    //     type: Array
-    // }
   },
   { timestamps: true },
 );
