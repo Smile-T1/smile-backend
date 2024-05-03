@@ -1,6 +1,5 @@
 import express from 'express';
-// import { getDoctorInfo, addDoctor } from '../controllers/doctor.controller.js';
-const getDoctorInfo = require('../controllers/doctor.controller');
+import { getDoctorInfo, addDoctor } from '../controllers/doctor.controller.js';
 
 const router = express.Router();
 

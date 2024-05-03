@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import asyncHandler from 'express-async-handler';
 
@@ -10,20 +9,22 @@ cloudinary.config({
 });
 const uploadSingleCloudinary = asyncHandler(async (req, res, next) => {
   try {
-    const image = req.file;
-    if (!image) {
-      throw new Error('No image file provided');
+    const report = req.file;
+    let result;
+    if (report) {
+      const b64 = Buffer.from(report.buffer).toString('base64');
+      const dataURI = 'data:' + report.mimetype + ';base64,' + b64;
+      result = await cloudinary.uploader.upload(dataURI, {
+        resource_type: 'auto',
+      });
     }
-    const b64 = Buffer.from(image.buffer).toString('base64');
-    const dataURI = 'data:' + image.mimetype + ';base64,' + b64;
-    const result = await cloudinary.uploader.upload(dataURI, {
-      resource_type: 'auto',
-    });
-    res.locals.image = result.secure_url;
+    res.locals.report = result.secure_url;
     next();
   } catch (error) {
     res.status(500).json({
-      msg: 'Internal error at uploading single media',
+      msg: 'Internal error at uploading report',
     });
   }
 });
+
+export default uploadSingleCloudinary;

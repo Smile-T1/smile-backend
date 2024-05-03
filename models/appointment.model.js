@@ -7,11 +7,11 @@ const appointmentSchema = new mongoose.Schema(
       ref: 'Patient',
       required: true,
     },
-    // doctor: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'Doctor',
-    //   required: true,
-    // },
+    doctor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Doctor',
+      required: true,
+    },
     date: {
       type: Date,
       required: [true, 'missing the date of creation of the user'],
@@ -31,6 +31,7 @@ const appointmentSchema = new mongoose.Schema(
     },
     Report: {
       type: String,
+      default: '',
     },
   },
   { timestamps: true },

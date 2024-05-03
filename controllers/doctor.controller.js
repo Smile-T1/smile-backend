@@ -19,13 +19,12 @@ async function getDoctorInfo(req, res) {
       return res.status(404).json({ message: 'Doctor not found' });
     }
 
-   return res.status(200).json({ success: true, doctor });
-
+    return res.status(200).json({ success: true, doctor });
   } catch (error) {
     console.error('Error getting doctor information:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
-};
+}
 
 /**
  * Add a new doctor to the database.
@@ -53,13 +52,9 @@ async function addDoctor(req, res) {
 
     return res.status(201).json({ success: true, doctor: newDoctor });
   } catch (error) {
-
     console.error('Error adding doctor:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
-};
-
+}
 
 export { getDoctorInfo, addDoctor };
-
-

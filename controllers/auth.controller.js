@@ -17,8 +17,8 @@ export const login = async (req, res) => {
     if (!user || !isPasswordCorrect) {
       return res.status(400).json({ error: 'Invalid username or password' });
     }
-   
-    generateTokenAndSetCookie(user._id,user.access, res);
+
+    generateTokenAndSetCookie(user._id, user.access, res);
 
     res.status(200).json({
       _id: user._id,
@@ -94,7 +94,7 @@ export const logout = (req, res) => {
 };
 
 export const patientRegister = async (req, res) => {
-  const { firstName, lastName, gender, email, mobile, dob, address, medicalHistory } = req.body;
+  const { firstName, lastName, gender, email, mobile, dob, address, /* medicalRecord*/ bloodType, occupation } = req.body;
 
   try {
     // generate username from email (first part before)
@@ -122,7 +122,9 @@ export const patientRegister = async (req, res) => {
 
     const newPatient = new Patient({
       user: savedUser._id,
-      medicalHistory,
+      bloodType: bloodType,
+      //medicalRecord:medicalRecord,
+      occupation: occupation,
     });
     const savedPatient = await newPatient.save();
 

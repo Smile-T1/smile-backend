@@ -1,12 +1,15 @@
 import Appointment from '../models/appointment.model';
 import appError from '../utils/app-error';
-const createAppointment = async (patientId, date, time, notes) => {
+const createAppointment = async (patientId, doctorId, date, time, notes, report) => {
   try {
     const appointment = new Appointment({
       patient: patientId,
-      date,
-      time,
+      doctor: doctorId,
+      date: date,
+      time: time,
       Notes: notes,
+      //if report not defined it will be an empty string
+      Report: report !== undefined ? report : '',
     });
     const savedAppointment = await appointment.save();
     return savedAppointment;

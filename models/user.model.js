@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
       required: true,
-      enum: ['male', 'female', 'other'],
+      enum: ['male', 'female'],
     },
     profilePic: {
       type: String,
@@ -49,11 +49,8 @@ const userSchema = new mongoose.Schema(
     access: {
       type: String,
       required: true,
-      enum: ['Patient', 'Dentist', 'Admin'],
+      enum: ['Patient', 'Doctor', 'Admin'],
     },
-    // patientHistory: {
-    //     type: Array
-    // }
   },
   { timestamps: true },
 );
