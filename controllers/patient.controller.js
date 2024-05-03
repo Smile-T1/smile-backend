@@ -30,7 +30,14 @@ export async function bookAppointmentHandler(req, res) {
       return res.status(404).json({ msg: 'Doctor not found' });
     }
 
-    const newAppointment = createAppointment(patientId, doctorId, dateappointment, appointmentTime, appointmentNotes);
+    const newAppointment = createAppointment(
+      patientId,
+      doctorId,
+      dateappointment,
+      appointmentTime,
+      appointmentNotes,
+      Report,
+    );
     if (!newAppointment) {
       return res.status(500).json({ msg: 'Failed to book appointment' });
     }
