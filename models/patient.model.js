@@ -4,7 +4,7 @@ const patientSchema = new mongoose.Schema(
   {
     // Reference to User schema
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: 'User',
       required: true,
     },
@@ -33,6 +33,10 @@ const patientSchema = new mongoose.Schema(
     bloodType: {
       type: String,
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    },
+    linkedDoctor: {
+      type: String,
+      ref: 'Doctor',
     },
   },
   { timestamps: true },

@@ -3,58 +3,88 @@ import Doctor from '../models/doctor.model.js';
 import User from '../models/user.model.js';
 
 /**
- * Get doctor information by user ID.
+ * Get all patients assigned to a doctor.
  * @param {import('express').Request} req - The Express request object.
  * @param {import('express').Response} res - The Express response object.
  * @returns {Promise<void>} A Promise representing the asynchronous operation.
  */
-async function getDoctorInfo(req, res) {
-  try {
-    const userId = req.params.userId;
+async function getDoctorPatients(req, res) {
+    try {
+      const doctorID = req.userId;
+      // get all patients and populate the 'user' field with user information
+      const patients = await Patient.find({linkedDoctor: doctorID}).populate('user');
 
-    // Find the doctor by user ID and populate the 'user' field with user information
-    const doctor = await Doctor.findOne({ user: userId }).populate('user');
+      if (!patients || patients.length === 0) {
+        return res.status(404).json({ message: 'No patients found' });
+      }
 
-    if (!doctor) {
-      return res.status(404).json({ message: 'Doctor not found' });
+      return res.status(200).json({ success: true, patients });
+    } catch (error) {
+      console.error('Error getting patient information:', error);
+      return res.status(500).json({ message: 'Internal server error' });
     }
-
-    return res.status(200).json({ success: true, doctor });
-  } catch (error) {
-    console.error('Error getting doctor information:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
-}
+};
 
 /**
- * Add a new doctor to the database.
+ * Edit patient information.
  * @param {import('express').Request} req - The Express request object.
  * @param {import('express').Response} res - The Express response object.
  * @returns {Promise<void>} A Promise representing the asynchronous operation.
  */
-async function addDoctor(req, res) {
-  try {
-    const { userId, speciality } = req.body;
+async function editPatientInfo(req, res) {
+    try {
+        const patientID = req.body.patientId;
+        const updateFields = req.body.updateFields;
 
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID is required' });
-    }
+        // Find the patient by ID
+        const patient = await Patient.findOne({ user: patientID }).populate('user');
+        if (!patient) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
 
-    // Check if the user with the provided ID exists
-    const existingUser = await User.findById(userId);
-    if (!existingUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+        // Check if there are any fields to update in the User schema
+        const userUpdateFields = {};
+        Object.entries(updateFields).forEach(([fieldKey, newValue]) => {
+          if (User.schema.paths.hasOwnProperty(fieldKey)) {
+                userUpdateFields[fieldKey] = newValue;
+            }
+        });
 
-    const newDoctor = new Doctor({ user: userId, speciality });
+        // Update the user document if there are any fields to update
+        if (Object.keys(userUpdateFields).length > 0) {
+          const user = await User.findById(patientID);
+          console.log(patientID);
+          
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            Object.assign(user, userUpdateFields);
+            await user.save();
+        }
 
-    await newDoctor.save();
+        // Update each field in the updateFields object for the patient
+        Object.entries(updateFields).forEach(([fieldKey, newValue]) => {
+            // Check if the provided fieldKey exists in the patient schema
+            if (Patient.schema.paths.hasOwnProperty(fieldKey)) {
+                // Update the specified field with the new value
+                patient[fieldKey] = newValue;
+            } else {
+                console.warn(`Field '${fieldKey}' does not exist in patient schema`);
+            }
+        });
 
-    return res.status(201).json({ success: true, doctor: newDoctor });
-  } catch (error) {
-    console.error('Error adding doctor:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
-}
+        // Save the updated patient object
+        await patient.save();
 
-export { getDoctorInfo, addDoctor };
+        return res.status(200).json({ message: 'Patient information updated successfully', patient });
+    } catch (error) {
+        console.error('Error updating patient information:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    } 
+};
+
+
+
+export default { getDoctorPatients, editPatientInfo };
+
+

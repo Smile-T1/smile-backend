@@ -1,9 +1,13 @@
 import express from 'express';
-import { getDoctorInfo, addDoctor } from '../controllers/doctor.controller.js';
+import doctorController from '../controllers/doctor.controller.js';
+import  authCheck  from '../middleware/auth/is-auth.js';
+import  checkDentist from '../middleware/auth/is-dentist.js';
+
 
 const router = express.Router();
 
-router.get('/getDoctor', getDoctorInfo);
-router.get('/addDoctor', addDoctor);
+router.get('/getPatients/:doctorId', authCheck, checkDentist, doctorController.getDoctorPatients);
+
+router.patch('/editPatientInfo', authCheck, doctorController.editPatientInfo);
 
 export default router;
