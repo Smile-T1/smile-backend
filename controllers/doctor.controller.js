@@ -37,7 +37,7 @@ async function editPatientInfo(req, res) {
         const updateFields = req.body.updateFields;
 
         // Find the patient by ID
-        const patient = await Patient.findOne({ user: patientID }).populate('user');
+        const patient = await Patient.findOne({ user: patientID });
         if (!patient) {
             return res.status(404).json({ message: 'Patient not found' });
         }
@@ -46,20 +46,20 @@ async function editPatientInfo(req, res) {
         const userUpdateFields = {};
         Object.entries(updateFields).forEach(([fieldKey, newValue]) => {
           if (User.schema.paths.hasOwnProperty(fieldKey)) {
-                userUpdateFields[fieldKey] = newValue;
+            userUpdateFields[fieldKey] = newValue;
+            delete updateFields[fieldKey];
             }
         });
-
+      let updatedUser;
         // Update the user document if there are any fields to update
         if (Object.keys(userUpdateFields).length > 0) {
           const user = await User.findById(patientID);
-          console.log(patientID);
           
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
             Object.assign(user, userUpdateFields);
-            await user.save();
+            updatedUser=await user.save();
         }
 
         // Update each field in the updateFields object for the patient
@@ -76,7 +76,7 @@ async function editPatientInfo(req, res) {
         // Save the updated patient object
         await patient.save();
 
-        return res.status(200).json({ message: 'Patient information updated successfully', patient });
+        return res.status(200).json({ message: 'Patient information updated successfully', patient, updatedUser });
     } catch (error) {
         console.error('Error updating patient information:', error);
         return res.status(500).json({ message: 'Internal server error' });
