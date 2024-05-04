@@ -16,18 +16,19 @@ const patientSchema = new mongoose.Schema(
     occupation: {
       type: String,
     },
-    medicalRecord: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'MedicalRecord',
-        unique: true,
-        index: true,
-        sparse: true,
-        autopopulate: true,
-        autopopulateSelect: 'patient',
-        default: [],
-      },
-    ],
+    // medicalRecord: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'MedicalRecord',
+    //     required: true,
+    //     unique: true,
+    //     index: true,
+    //     sparse: true,
+    //     autopopulate: true,
+    //     autopopulateSelect: 'patient',
+    //     default: [],
+    //   },
+    // ],
     // Additional attributes for patients
     bloodType: {
       type: String,

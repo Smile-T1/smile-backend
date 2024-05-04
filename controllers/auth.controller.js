@@ -17,14 +17,15 @@ export const login = async (req, res) => {
     if (!user || !isPasswordCorrect) {
       return res.status(400).json({ error: 'Invalid username or password' });
     }
-   
-    generateTokenAndSetCookie(user._id,user.access, res);
+
+    generateTokenAndSetCookie(user._id, user.access, res);
 
     res.status(200).json({
       _id: user._id,
       fullName: user.fullName,
       username: user.username,
       profilePic: user.profilePic,
+      userAccess: user.access,
     });
   } catch (error) {
     console.log('Error in login controller', error.message);
@@ -94,7 +95,18 @@ export const logout = (req, res) => {
 };
 
 export const patientRegister = async (req, res) => {
-  const { firstName, lastName, gender, email, mobile, dob, address, medicalHistory } = req.body;
+  const {
+    firstName,
+    lastName,
+    gender,
+    email,
+    mobile,
+    dob,
+    address,
+    /* medicalRecord*/ bloodType,
+    occupation,
+    maritialStatus,
+  } = req.body;
 
   try {
     // generate username from email (first part before)
@@ -122,7 +134,10 @@ export const patientRegister = async (req, res) => {
 
     const newPatient = new Patient({
       user: savedUser._id,
-      medicalHistory,
+      bloodType: bloodType,
+      //medicalRecord:medicalRecord,
+      occupation: occupation,
+      maritalStatus: maritialStatus,
     });
     const savedPatient = await newPatient.save();
 
@@ -151,6 +166,7 @@ export const patientRegister = async (req, res) => {
 
     res.status(201).json({ user: savedUser, patient: savedPatient });
   } catch (error) {
+    if (error.code === 11000) return res.status(400).json({ error: 'Credentials already exists' });
     console.error('Error in registering patient: ', error);
     res.status(500).json({ error: 'Register patient controller error' });
   }
@@ -214,6 +230,7 @@ export const doctorRegister = async (req, res) => {
 
     res.status(201).json({ user: savedUser, doctor: savedDoctor });
   } catch (error) {
+    if (error.code === 11000) return res.status(400).json({ error: 'Credentials already exists' });
     console.error('Error in registering doctor: ', error);
     res.status(500).json({ error: 'Register doctor controller error' });
   }

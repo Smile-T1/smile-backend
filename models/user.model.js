@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
       required: true,
-      enum: ['male', 'female', 'other'],
+      enum: ['male', 'female'],
     },
     profilePic: {
       type: String,
@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
+      unique: true,
       required: true,
       validate: [validator.isEmail, 'Please provide a valid email'],
     },
@@ -49,7 +50,7 @@ const userSchema = new mongoose.Schema(
     access: {
       type: String,
       required: true,
-      enum: ['Patient', 'Dentist', 'Admin'],
+      enum: ['Patient', 'Doctor', 'Admin'],
     },
   },
   { timestamps: true },

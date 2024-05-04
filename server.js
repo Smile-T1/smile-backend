@@ -20,6 +20,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/doctor', doctorRouter);
+app.use('/api/patient', patientRouter)
 app.use('/api/admin', adminRouter);
 app.use('/api', generalRouter);
 

@@ -1,4 +1,4 @@
-import { validaterequest } from '../utils/validation';
+import { validaterequest } from '../utils/validation.js';
 
 const validateResource =
   (schema, abortEarly = false) =>
