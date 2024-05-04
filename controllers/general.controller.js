@@ -1,6 +1,7 @@
 import Patient from '../models/patient.model.js';
 import Doctor from '../models/doctor.model.js';
 import User from '../models/user.model.js';
+import Appointment from '../models/appointment.model.js';
 
 /**
  * Get doctor or patient information by user ID.
@@ -18,8 +19,11 @@ async function getnfo(req, res) {
       // Find the doctor by user ID and populate the 'user' field with user information
       information = await Doctor.findOne({ user: id }).populate('user');
     } else if (type == 'patient') {
-      // Find the doctor by user ID and populate the 'user' field with user information
+      // Find the patient by user ID and populate the 'user' field with user information
       information = await Patient.findOne({ user: id }).populate('user');
+    } else if (type == 'appointment') {
+      // Find the appointment by user ID and populate fields with information
+      information = await Appointment.findById(id).populate('patient').populate('doctor');
     } else {
       return res.status(400).json({ message: 'Wrong Parameter' });
     }
