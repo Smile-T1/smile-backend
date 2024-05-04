@@ -8,8 +8,10 @@ const router = express.Router();
 
 router.get('/getPatients', authCheck, checkDentist, doctorController.getDoctorPatients);
 
-router.patch('/editPatientInfo', authCheck, doctorController.editPatientInfo);
+router.patch('/editPatientInfo', authCheck, checkDentist, doctorController.editPatientInfo);
 
-router.get('/appointments', authCheck, doctorController.getDoctorsAppointments);
+router.get('/appointments', authCheck, checkDentist, doctorController.getDoctorsAppointments);
+
+router.get('/deleteAppointments', authCheck, checkDentist, doctorController.deleteDoctorAppointment);
 
 export default router;

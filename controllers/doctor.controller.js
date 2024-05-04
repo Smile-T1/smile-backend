@@ -84,23 +84,48 @@ async function editPatientInfo(req, res) {
     } 
 };
 
+
 async function getDoctorsAppointments(req, res) {
-   try {
-     const doctorID = req.userId;
-     // get all appointments and populate the 'patients and doctors' field with user information
-     const appointments = await Appointment.find({ linkedDoctor: doctorID }).populate('patient').populate('doctor');
+  try {
+    const doctorID = req.userId;
 
-     if (!appointments || appointments.length === 0) {
-       return res.status(404).json({ message: 'No appointments found' });
-     }
+    // get all appointments and populate the 'patients and doctors' field with user information
+    const appointments = await Appointment.find({ doctor: doctorID }).populate('patient').populate('doctor');
 
-     return res.status(200).json({ success: true, appointments });
-   } catch (error) {
-     console.error('Error getting appointments:', error);
-     return res.status(500).json({ message: 'Internal server error' });
-   }
+    if (!appointments || appointments.length === 0) {
+      return res.status(404).json({ message: 'No appointments found' });
+    }
+
+    return res.status(200).json({ success: true, appointments });
+  } catch (error) {
+    console.error('Error getting appointments:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 }
 
-export default { getDoctorPatients, editPatientInfo,getDoctorsAppointments };
+async function deleteDoctorAppointment(req, res) {
+  try {
+    const doctorID = req.userId;
+    const appointmentID = req.params.appointmentId;
+
+    // Check if the appointment belongs to the specified doctor
+    const appointment = await Appointment.findOne({ _id: appointmentID, doctor: doctorID });
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found or does not belong to the doctor' });
+    }
+
+    // Delete the appointment
+    await Appointment.findByIdAndDelete(appointmentID);
+
+    return res.status(200).json({ success: true, message: 'Appointment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting appointment:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+
+export default { getDoctorPatients, editPatientInfo, getDoctorsAppointments, deleteDoctorAppointment };
 
 
