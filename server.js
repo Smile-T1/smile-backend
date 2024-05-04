@@ -6,6 +6,7 @@ import doctorRouter from './routes/doctor.router.js';
 import adminRouter from './routes/admin.router.js';
 import generalRouter from './routes/general.router.js';
 import patientRouter from './routes/patient.routes.js';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 
+app.use(cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/doctor', doctorRouter);
 app.use('/api/patient', patientRouter);
