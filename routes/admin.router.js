@@ -5,6 +5,6 @@ import adminCheck from '../middleware/auth/is-admin.js';
 
 const router = express.Router();
 
-router.get('/:type',  adminController.getList);
+router.get('/:type', authCheck, adminCheck, adminController.getList);
 
 export default router;
