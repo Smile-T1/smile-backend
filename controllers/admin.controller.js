@@ -1,36 +1,45 @@
 import Patient from '../models/patient.model.js';
 import Doctor from '../models/doctor.model.js';
 import User from '../models/user.model.js';
+import Appointment from '../models/appointment.model.js';
 
-async function getPatientsList(req, res) {
+async function getList(req, res) {
   try {
-    // get all patients and populate the 'user' field with user information
-    const patients = await Patient.find({}).populate('user');
+    let data;
+    let modelName;
+    let populateFields = [];
 
-    if (!patients || patients.length === 0) {
-      return res.status(404).json({ message: 'No patients found' });
+    const { type } = req.params; 
+
+    switch (type) {
+      case 'patients':
+        modelName = Patient;
+        populateFields.push('user');
+        break;
+      case 'doctors':
+        modelName = Doctor;
+        populateFields.push('user');
+        break;
+      case 'appointments':
+        modelName = Appointment;
+        populateFields = ['patient', 'doctor'];
+        break;
+      default:
+        return res.status(400).json({ message: 'Invalid type parameter' });
     }
 
-    return res.status(200).json({ success: true, patients });
+    data = await modelName.find({}).populate(populateFields);
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ message: `No ${type} found` });
+    }
+
+    return res.status(200).json({ success: true, [type]: data });
   } catch (error) {
-    console.error('Error getting patients:', error);
+    console.error(`Error getting ${type}:`, error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
-async function getDoctorsList(req, res) {
-  try {
-    // get all doctors and populate the 'user' field with user information
-    const doctors = await Doctor.find({}).populate('user');
 
-    if (!doctors || doctors.length === 0) {
-      return res.status(404).json({ message: 'No doctors found' });
-    }
 
-    return res.status(200).json({ success: true, doctors });
-  } catch (error) {
-    console.error('Error getting doctors:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
-}
-
-export default{ getPatientsList, getDoctorsList };
+export default { getList };

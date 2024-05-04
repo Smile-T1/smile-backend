@@ -5,7 +5,6 @@ import adminCheck from '../middleware/auth/is-admin.js';
 
 const router = express.Router();
 
-router.get('/getAllPatients', authCheck, adminCheck, adminController.getPatientsList);
-router.get('/getAllDoctors', authCheck, adminCheck, adminController.getPatientsList);
+router.get('/:type',  adminController.getList);
 
 export default router;
