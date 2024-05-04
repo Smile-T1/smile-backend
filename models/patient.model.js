@@ -16,6 +16,9 @@ const patientSchema = new mongoose.Schema(
     occupation: {
       type: String,
     },
+    history: {
+      type: String,
+    },
     // medicalRecord: [
     //   {
     //     type: mongoose.Schema.Types.ObjectId,

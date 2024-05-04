@@ -128,6 +128,7 @@ export const patientRegister = async (req, res) => {
       mobile,
       dob,
       address,
+      history,
       access: 'Patient',
     });
     const savedUser = await newUser.save();
