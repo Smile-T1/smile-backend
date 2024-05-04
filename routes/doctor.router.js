@@ -6,8 +6,10 @@ import  checkDentist from '../middleware/auth/is-dentist.js';
 
 const router = express.Router();
 
-router.get('/getPatients/:doctorId', authCheck, checkDentist, doctorController.getDoctorPatients);
+router.get('/getPatients', authCheck, checkDentist, doctorController.getDoctorPatients);
 
 router.patch('/editPatientInfo', authCheck, doctorController.editPatientInfo);
+
+router.get('/appointments', authCheck, doctorController.getDoctorsAppointments);
 
 export default router;

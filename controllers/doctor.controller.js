@@ -1,6 +1,7 @@
 import Patient from '../models/patient.model.js';
 import Doctor from '../models/doctor.model.js';
 import User from '../models/user.model.js';
+import Appointment from '../models/appointment.model.js';
 
 /**
  * Get all patients assigned to a doctor.
@@ -20,7 +21,7 @@ async function getDoctorPatients(req, res) {
 
       return res.status(200).json({ success: true, patients });
     } catch (error) {
-      console.error('Error getting patient information:', error);
+      console.error('Error getting patients:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
 };
@@ -83,8 +84,23 @@ async function editPatientInfo(req, res) {
     } 
 };
 
+async function getDoctorsAppointments(req, res) {
+   try {
+     const doctorID = req.userId;
+     // get all appointments and populate the 'patients and doctors' field with user information
+     const appointments = await Appointment.find({ linkedDoctor: doctorID }).populate('patient').populate('doctor');
 
+     if (!appointments || appointments.length === 0) {
+       return res.status(404).json({ message: 'No appointments found' });
+     }
 
-export default { getDoctorPatients, editPatientInfo };
+     return res.status(200).json({ success: true, appointments });
+   } catch (error) {
+     console.error('Error getting appointments:', error);
+     return res.status(500).json({ message: 'Internal server error' });
+   }
+}
+
+export default { getDoctorPatients, editPatientInfo,getDoctorsAppointments };
 
 
