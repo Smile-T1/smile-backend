@@ -111,6 +111,13 @@ export const patientRegister = async (req, res) => {
   try {
     // generate username from email (first part before)
     const username = email.split('@')[0];
+    console.log('username', username);
+
+    //check if user already exists
+    const user = await User.findOne({ username });
+    if (user) {
+      return res.status(400).json({ error: 'Email already exists' });
+    }
 
     // generate a random password
     const password = Math.random().toString(36).slice(-8);
@@ -131,6 +138,7 @@ export const patientRegister = async (req, res) => {
       //history,
       access: 'Patient',
     });
+
     const savedUser = await newUser.save();
 
     const newPatient = new Patient({
