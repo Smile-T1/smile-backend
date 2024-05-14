@@ -189,6 +189,12 @@ export const doctorRegister = async (req, res) => {
     // generate username from email (first part before)
     const username = email.split('@')[0];
 
+    //check if user already exists
+    const user = await User.findOne({ username });
+    if (user) {
+      return res.status(400).json({ error: 'Email already exists' });
+    }
+
     // generate a random password
     const password = Math.random().toString(36).slice(-8);
     // HASH PASSWORD HERE
@@ -241,7 +247,8 @@ export const doctorRegister = async (req, res) => {
 
     res.status(201).json({ user: savedUser, doctor: savedDoctor });
   } catch (error) {
-    if (error.code === 11000) return res.status(400).json({ error: 'Credentials already exists' });
+    console.log('Error in registering doctor: ', error);
+    if (error.code === 11000) return res.status(400).json({ error: 'Email already exists' });
     console.error('Error in registering doctor: ', error);
     res.status(500).json({ error: 'Register doctor controller error' });
   }
