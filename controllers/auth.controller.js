@@ -18,7 +18,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid username or password' });
     }
 
-    generateTokenAndSetCookie(user._id, user.access, res);
+    const token = generateTokenAndSetCookie(user._id, user.access, res);
 
     res.status(200).json({
       _id: user._id,
@@ -26,6 +26,7 @@ export const login = async (req, res) => {
       username: user.username,
       profilePic: user.profilePic,
       userAccess: user.access,
+      token,
     });
   } catch (error) {
     console.log('Error in login controller', error.message);
@@ -66,7 +67,7 @@ export const signup = async (req, res) => {
 
     if (newUser) {
       // Generate JWT token here
-      generateTokenAndSetCookie(newUser._id, res);
+      const token = generateTokenAndSetCookie(newUser._id, res);
       await newUser.save();
 
       res.status(201).json({
@@ -74,6 +75,7 @@ export const signup = async (req, res) => {
         fullName: newUser.fullName,
         username: newUser.username,
         profilePic: newUser.profilePic,
+        token,
       });
     } else {
       res.status(400).json({ error: 'Invalid user data' });
@@ -172,7 +174,7 @@ export const patientRegister = async (req, res) => {
 
     const patient_registered = await Patient.populate(savedPatient, { path: 'user' });
 
-    res.status(201).json({  patient: patient_registered, msg: 'Patient registered successfully' });
+    res.status(201).json({ patient: patient_registered, msg: 'Patient registered successfully' });
   } catch (error) {
     console.log('Error in registering patient: ', error);
     if (error.code === 11000) return res.status(400).json({ error: 'Credentials already exists' });
