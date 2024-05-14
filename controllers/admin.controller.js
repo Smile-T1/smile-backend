@@ -9,7 +9,7 @@ async function getList(req, res) {
     let modelName;
     let populateFields = [];
 
-    const { type } = req.params; 
+    const { type } = req.params;
 
     switch (type) {
       case 'patients':
@@ -40,6 +40,5 @@ async function getList(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
-
 
 export default { getList };

@@ -28,6 +28,15 @@ export async function getAppointmentsByPatientId(patientId) {
   }
 }
 
+export async function getAppointmentForPatient(patientId, appointmentId) {
+  try {
+    const appointment = await Appointment.findOne({ _id: appointmentId, patient: patientId });
+    return appointment;
+  } catch (error) {
+    throw new appError('Appointment not found', 500);
+  }
+}
+
 export async function updateAppointmentStatus(appointmentId, newStatus) {
   try {
     const appointment = await Appointment.findByIdAndUpdate(appointmentId, { status: newStatus }, { new: true });
