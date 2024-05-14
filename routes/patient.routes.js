@@ -14,7 +14,7 @@ import uploadSingleCloudinary from '../middleware/cloudinary/uploadToCloudinary.
 const router = express.Router();
 /*Appointments */
 //router.get('/appointment', authCheck, checkPatient, getPatientInfoHandler);
-router.post('/bookAppointment', authCheck, checkPatient, uploadfile, uploadSingleCloudinary, bookAppointmentHandler);
+router.post('/appointment', authCheck, checkPatient, uploadfile, uploadSingleCloudinary, bookAppointmentHandler);
 
 router.get(
   '/appointmentsDoctors',
