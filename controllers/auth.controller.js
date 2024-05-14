@@ -18,7 +18,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid username or password' });
     }
 
-    generateTokenAndSetCookie(user._id, user.access, res);
+    const token = generateTokenAndSetCookie(user._id, user.access, res);
 
     res.status(200).json({
       _id: user._id,
@@ -26,6 +26,7 @@ export const login = async (req, res) => {
       username: user.username,
       profilePic: user.profilePic,
       userAccess: user.access,
+      token,
     });
   } catch (error) {
     console.log('Error in login controller', error.message);
@@ -66,7 +67,7 @@ export const signup = async (req, res) => {
 
     if (newUser) {
       // Generate JWT token here
-      generateTokenAndSetCookie(newUser._id, res);
+      const token = generateTokenAndSetCookie(newUser._id, res);
       await newUser.save();
 
       res.status(201).json({
@@ -74,6 +75,7 @@ export const signup = async (req, res) => {
         fullName: newUser.fullName,
         username: newUser.username,
         profilePic: newUser.profilePic,
+        token,
       });
     } else {
       res.status(400).json({ error: 'Invalid user data' });
@@ -95,20 +97,19 @@ export const logout = (req, res) => {
 };
 
 export const patientRegister = async (req, res) => {
-  const {
-    firstName,
-    lastName,
-    gender,
-    email,
-    mobile,
-    dob,
-    address,
-    /* medicalRecord*/ bloodType,
-    occupation,
-    maritialStatus,
-  } = req.body;
-
   try {
+    let Report;
+    if (res.locals.report) {
+      Report = res.locals.report;
+    }
+
+    console.log(req.body);
+    const data = JSON.parse(req.body.patientDetails);
+
+    const { firstName, lastName, email, mobile, dob, gender, address, history } = data;
+
+    console.log('data', data);
+    console.log(firstName);
     // generate username from email (first part before)
     const username = email.split('@')[0];
     console.log('username', username);
@@ -126,27 +127,25 @@ export const patientRegister = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      firstName,
-      lastName,
-      username,
+      firstName: firstName,
+      lastName: lastName,
+      username: username,
       password: hashedPassword,
-      gender,
-      email,
-      mobile,
-      dob,
-      address,
-      //history,
+      gender: gender,
+      email: email,
+      mobile: mobile,
+      dob: dob,
+      address: address,
       access: 'Patient',
     });
 
     const savedUser = await newUser.save();
 
+    console.log('savedUser', savedUser);
     const newPatient = new Patient({
       user: savedUser._id,
-      bloodType: bloodType,
-      //medicalRecord:medicalRecord,
-      occupation: occupation,
-      maritalStatus: maritialStatus,
+      history: history,
+      report: Report !== undefined ? Report : '',
     });
     const savedPatient = await newPatient.save();
 
@@ -173,7 +172,9 @@ export const patientRegister = async (req, res) => {
       }
     });
 
-    res.status(201).json({ user: savedUser, patient: savedPatient });
+    // const patient_registered = await Patient.populate(savedPatient, { path: 'user' });
+
+    res.status(201).json({ msg: 'Patient registered successfully' });
   } catch (error) {
     console.log('Error in registering patient: ', error);
     if (error.code === 11000) return res.status(400).json({ error: 'Credentials already exists' });
@@ -211,7 +212,6 @@ export const doctorRegister = async (req, res) => {
       mobile,
       dob,
       address,
-      speciality,
       access: 'Doctor',
     });
     const savedUser = await newUser.save();

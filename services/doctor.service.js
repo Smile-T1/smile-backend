@@ -19,3 +19,23 @@ export async function findDoctorIdByUsername(doctorUsername) {
     throw new appError('Failed to find doctor', 500);
   }
 }
+
+export async function findDoctorsBySpeciality(speciality) {
+  try {
+    const query = speciality ? { speciality: speciality } : {};
+
+    console.log('query:', query);
+    const doctors = await Doctor.find({ query });
+    console.log('doctors:', doctors);
+    const populatedDoctors = await Doctor.populate(doctors, { path: 'user', select: 'username' });
+    const doctorUserNames = populatedDoctors.map((doctor) => doctor.user.username);
+    //apply pagination
+    // const startIndex = (page - 1) * limit;
+    // const endIndex = page * limit;
+    // const paginatedUsers = doctorUserNames.slice(startIndex, endIndex);
+    return doctorUserNames;
+  } catch (error) {
+    console.error('Error finding doctors by speciality:', error);
+    throw new appError('Failed to find doctors', 500);
+  }
+}

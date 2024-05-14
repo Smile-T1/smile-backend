@@ -10,6 +10,7 @@ cloudinary.config({
 const uploadSingleCloudinary = asyncHandler(async (req, res, next) => {
   try {
     const report = req.file;
+    console.log(report);
     let result;
     if (report) {
       const b64 = Buffer.from(report.buffer).toString('base64');
@@ -17,10 +18,8 @@ const uploadSingleCloudinary = asyncHandler(async (req, res, next) => {
       result = await cloudinary.uploader.upload(dataURI, {
         resource_type: 'auto',
       });
+      res.locals.report = result.secure_url;
     }
-    res.locals.report = result.secure_url;
-    console.log(res.locals.report);
-    console.log('nice');
     next();
   } catch (error) {
     res.status(500).json({

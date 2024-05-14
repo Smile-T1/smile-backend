@@ -4,5 +4,3 @@ import Patient from '../models/patient.model.js';
 export function findPatientById(id) {
   return Patient.findById(id);
 }
-
-//continue

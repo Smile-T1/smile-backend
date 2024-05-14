@@ -15,10 +15,16 @@ const patientSchema = new mongoose.Schema(
     },
     occupation: {
       type: String,
+      default: 'Sofware Developer',
     },
     history: {
       type: String,
     },
+    report: {
+      type: String,
+      default: '',
+    },
+
     // medicalRecord: [
     //   {
     //     type: mongoose.Schema.Types.ObjectId,
@@ -36,6 +42,7 @@ const patientSchema = new mongoose.Schema(
     bloodType: {
       type: String,
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+      default: 'A+',
     },
     linkedDoctor: {
       type: String,

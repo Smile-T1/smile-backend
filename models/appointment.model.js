@@ -4,12 +4,12 @@ const appointmentSchema = new mongoose.Schema(
   {
     patient: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Patient',
+      ref: 'User',
       required: true,
     },
     doctor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Doctor',
+      ref: 'User',
       required: true,
     },
     date: {
@@ -35,6 +35,15 @@ const appointmentSchema = new mongoose.Schema(
     Type: {
       type: String,
       required: true,
+      enum: [
+        'Routine Check-up and Cleaning',
+        'Dental Filling',
+        'Root Canal Therapy',
+        'Tooth Extraction',
+        'Orthodontic Consultation',
+        'Cosmetic Dentistry',
+        'Emergency Dental Care',
+      ],
     },
   },
   { timestamps: true },

@@ -28,6 +28,15 @@ export async function getAppointmentsByPatientId(patientId) {
   }
 }
 
+export async function getAppointmentForPatient(patientId, appointmentId) {
+  try {
+    const appointment = await Appointment.findOne({ _id: appointmentId, patient: patientId });
+    return appointment;
+  } catch (error) {
+    throw new appError('Appointment not found', 500);
+  }
+}
+
 export async function updateAppointmentStatus(appointmentId, newStatus) {
   try {
     const appointment = await Appointment.findByIdAndUpdate(appointmentId, { status: newStatus }, { new: true });
@@ -65,5 +74,19 @@ export async function existsAppointmentInSameTime(patientId, doctorId, date, tim
     return false;
   } catch (error) {
     throw new appError('Failed to check if appointment in same time', 500);
+  }
+}
+
+export async function getNewestAppointmentForPatient(patientId) {
+  try {
+    // Query appointments for the patient with the given ID
+    const newestAppointment = await Appointment.findOne({ patient: patientId })
+      .sort({ createdAt: -1 }) // Sort appointments by createdAt in descending order
+      .exec(); // Execute the query
+
+    return newestAppointment; // Return the newest appointment
+  } catch (error) {
+    console.error('Error fetching newest appointment:', error);
+    throw new Error('Failed to fetch newest appointment');
   }
 }
