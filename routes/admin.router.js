@@ -7,4 +7,6 @@ const router = express.Router();
 
 router.get('/:type', authCheck, adminCheck, adminController.getList);
 
+router.delete('/delete/:type/:userId', authCheck, adminCheck, adminController.deleteUser);
+
 export default router;
