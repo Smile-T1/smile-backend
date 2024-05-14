@@ -172,9 +172,9 @@ export const patientRegister = async (req, res) => {
       }
     });
 
-    const patient_registered = await Patient.populate(savedPatient, { path: 'user' });
+    // const patient_registered = await Patient.populate(savedPatient, { path: 'user' });
 
-    res.status(201).json({ patient: patient_registered, msg: 'Patient registered successfully' });
+    res.status(201).json({ msg: 'Patient registered successfully' });
   } catch (error) {
     console.log('Error in registering patient: ', error);
     if (error.code === 11000) return res.status(400).json({ error: 'Credentials already exists' });

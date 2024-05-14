@@ -74,8 +74,10 @@ export async function bookAppointmentHandler(req, res) {
 
 export async function getAvailableAppointmentDoctors(req, res) {
   try {
+    console.log('getAvailableAppointmentDoctors');
     //logic
     const { speciality } = req.query;
+    console.log('speciality', speciality);
     // const page = pageString ? parseInt(pageString, 10) : 1; // Convert page string to number, default to 1 if not provided
     // const limit = limitString ? parseInt(limitString, 10) : 6; // Convert limit string to number, default to 10 if not provided
 
