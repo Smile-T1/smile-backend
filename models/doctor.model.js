@@ -8,6 +8,15 @@ const doctorSchema = new mongoose.Schema({
   },
   speciality: {
     type: String,
+    enum: [
+      'Routine Check-up and Cleaning',
+      'Dental Filling',
+      'Root Canal Therapy',
+      'Tooth Extraction',
+      'Orthodontic Consultation',
+      'Cosmetic Dentistry',
+      'Emergency Dental Care',
+    ],
   },
 });
 
