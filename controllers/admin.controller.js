@@ -3,8 +3,10 @@ import Doctor from '../models/doctor.model.js';
 import User from '../models/user.model.js';
 import Appointment from '../models/appointment.model.js';
 import { decode } from 'jsonwebtoken';
+import AdminService from '../services/admin.service.js';
 
 async function getList(req, res) {
+  // console.log(req.userId);
   try {
     let data;
     let modelName;
@@ -63,4 +65,43 @@ async function deleteUser(req, res) {
   }
 }
 
-export default { getList, deleteUser };
+async function getTotalCounts(req, res) {
+  console.log(req.userId);
+  try {
+    const totalDoctors = await AdminService.getTotalDoctors();
+    const totalPatients = await AdminService.getTotalPatients();
+    const totalAppointments = await AdminService.getTotalAppointments();
+
+    res.status(200).json({
+      totalDoctors,
+      totalPatients,
+      totalAppointments,
+    });
+  } catch (error) {
+    console.error('Error getting totals');
+    res.status(500).json({message: "Error in admin controller"});
+  }
+}
+
+async function getLatestAppointment(req, res) {
+  try {
+    const latestAppointment = await AdminService.getLatestAppointment();
+
+    if (!latestAppointment) {
+      return res.status(404).json({ message: 'No appointment found' });
+    }
+
+    res.status(200).json({
+      patient: latestAppointment.patient.firstName + " " + latestAppointment.patient.lastName,
+      doctor: latestAppointment.doctor.firstName + " " + latestAppointment.doctor.lastName,
+      date: latestAppointment.date,
+      time: latestAppointment.time,
+      Type: latestAppointment.Type
+    })
+  } catch(error) {
+    console.error("Error in getting latest appointment");
+    res.status(500).json({message: "Error in admin controller", error: error.message});
+  }
+}
+
+export default { getList, deleteUser, getTotalCounts, getLatestAppointment };
