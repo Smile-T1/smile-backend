@@ -10,21 +10,36 @@ import Appointment from '../models/appointment.model.js';
  * @returns {Promise<void>} A Promise representing the asynchronous operation.
  */
 async function getDoctorPatients(req, res) {
-    try {
-      const doctorID = req.userId;
-      // get all patients and populate the 'user' field with user information
-      const patients = await Patient.find({linkedDoctor: doctorID}).populate('user');
+  try {
+    const doctorID = req.userId;
+    // get all patients and populate the 'user' field with user information including age
+    const patients = await Patient.find({ linkedDoctor: doctorID })
+      .populate({
+        path: 'user',
+        select: '-password', // Exclude password field from user data
+      })
+      .lean(); // Convert documents to plain JavaScript objects with virtuals
 
-      if (!patients || patients.length === 0) {
-        return res.status(404).json({ message: 'No patients found' });
-      }
-
-      return res.status(200).json({ success: true, patients });
-    } catch (error) {
-      console.error('Error getting patients:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+    if (!patients || patients.length === 0) {
+      return res.status(404).json({ message: 'No patients found' });
     }
-};
+
+    // Calculate and include age for each patient in the response
+    patients.forEach((patient) => {
+      if (patient.user.dob) {
+        const diff = Date.now() - patient.user.dob.getTime();
+        const ageDate = new Date(diff);
+        patient.user.age = Math.abs(ageDate.getUTCFullYear() - 1970);
+      }
+    });
+
+    // Send back response including age
+    return res.status(200).json({ success: true, patients });
+  } catch (error) {
+    console.error('Error getting patients:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
 
 /**
  * Edit patient information.
