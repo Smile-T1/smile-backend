@@ -18,7 +18,7 @@ const doctorSchema = new mongoose.Schema({
       'Emergency Dental Care',
     ],
   },
-});
+}, {strict: "throw"});
 
 const Doctor = mongoose.model('Doctor', doctorSchema);
 
