@@ -9,6 +9,7 @@ import {
   getAllAppointmentsHandler,
   getPatientAppointmentByIdHandler,
   deletePatientAppointmentByIdHandler,
+  getNearestPatientAppointment,
 } from '../controllers/patient.controller.js';
 import uploadfile from '../middleware/multer/uploadReport.js';
 import uploadSingleCloudinary from '../middleware/cloudinary/uploadToCloudinary.js';
@@ -42,5 +43,7 @@ router.delete(
   validateResource(getAppointmentSchema),
   deletePatientAppointmentByIdHandler,
 );
+
+router.get('/newestAppointment', authCheck, checkPatient, getNearestPatientAppointment);
 
 export default router;

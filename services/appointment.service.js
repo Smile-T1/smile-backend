@@ -93,13 +93,48 @@ export async function existsAppointmentInSameTime(patientId, doctorId, date, tim
 export async function getNewestAppointmentForPatient(patientId) {
   try {
     // Query appointments for the patient with the given ID
-    const newestAppointment = await Appointment.findOne({ patient: patientId })
-      .sort({ createdAt: -1 }) // Sort appointments by createdAt in descending order
-      .exec(); // Execute the query
+    const newestAppointment = await Appointment.findOne({ patient: patientId });
 
     return newestAppointment; // Return the newest appointment
   } catch (error) {
     console.error('Error fetching newest appointment:', error);
     throw new Error('Failed to fetch newest appointment');
+  }
+}
+
+export async function getNearestPendingAppointmentForPatient(patientId) {
+  try {
+    // Get the current date and time
+    const currentDate = new Date();
+
+    // Find the nearest pending appointment for the patient
+    const nearestAppointment = await Appointment.aggregate([
+      {
+        $match: {
+          patient: patientId,
+          status: 'Upcoming', // Only consider appointments with a pending status
+          createdAt: { $gte: currentDate }, // Scheduled date is on or after the current date
+        },
+      },
+      {
+        $addFields: {
+          appointmentDateTime: {
+            $dateFromString: {
+              dateString: { $concat: ['$dateappointment', 'T', '$appointmentTime'] },
+              format: '%d-%m-%YT%I:%M%p', // Format of the concatenated string
+            },
+          },
+        },
+      },
+      {
+        $sort: { appointmentDateTime: 1 }, // Sort by the new appointmentDateTime field
+      },
+    ]);
+
+    // Return the nearest appointment
+    return nearestAppointment[0]; // Assuming the first entry is the nearest appointment
+  } catch (error) {
+    console.error('Error fetching nearest pending appointment:', error);
+    throw new Error('Failed to fetch nearest pending appointment');
   }
 }

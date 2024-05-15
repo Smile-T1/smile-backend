@@ -24,10 +24,13 @@ export async function findDoctorsBySpeciality(speciality) {
     const query = speciality ? { speciality: speciality } : {};
 
     console.log('query:', query);
-    const doctors = await Doctor.find(query);
+    const doctors = await Doctor.find(query).populate({
+      path: 'user',
+      select: 'username',
+    });
     console.log('doctors:', doctors);
-    const populatedDoctors = await Doctor.populate(doctors, { path: 'user', select: 'username' });
-    const doctorUserNames = populatedDoctors.map((doctor) => doctor.user.username);
+    //const populatedDoctors = await Doctor.populate(doctors, { path: 'user', select: 'username' });
+    const doctorUserNames = doctors.map((doctor) => doctor.user?.username).filter(Boolean);
     //apply pagination
     // const startIndex = (page - 1) * limit;
     // const endIndex = page * limit;
