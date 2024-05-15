@@ -1,10 +1,9 @@
 import Patient from '../models/patient.model.js';
 
 //services ---> deal with db directly
-export async function findPatientById(id) {
+export async function findPatientByUserId(id) {
   try {
-    const patient = await Patient.findById(id);
-    console.log('patient', patient);
+    const patient = await Patient.findOne({ user: id });
     return patient;
   } catch (error) {
     console.error('Error finding patient:', error);

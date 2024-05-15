@@ -1,11 +1,13 @@
-import { findDoctorIdByUsername, findDoctorsBySpeciality } from '../services/doctor.service.js';
+import { findDoctorIdByUsername, findDoctorsBySpeciality, findDoctorByDoctorId } from '../services/doctor.service.js';
 import {
   createAppointment,
   existsAppointmentInSameTime,
   getAppointmentForPatient,
   getAppointmentsByPatientId,
+  deleteAppointmentById,
 } from '../services/appointment.service.js';
-import { findPatientById } from '../services/patient.service.js';
+import { validateAppointmentDate } from '../utils/checkDate.js';
+import { findPatientByUserId } from '../services/patient.service.js';
 // export async function getPatientInfoHandler(req, res) {
 //   try {
 //     const patientId = req.userId;
@@ -23,21 +25,28 @@ import { findPatientById } from '../services/patient.service.js';
 
 export async function bookAppointmentHandler(req, res) {
   try {
-    const patientId = req.userId;
-    // const { doctorUser, dateappointment, appointmentTime, appointmentNotes, appointmentType } =
-    //   req.body.appointmentDetails;
+    const userPatientId = req.userId;
+    const patient = await findPatientByUserId(userPatientId);
+    if (!patient) {
+      return res.status(404).json({ msg: 'Patient not found' });
+    }
+    const patientId = patient._id;
+
     const data = JSON.parse(req.body.appointmentDetails);
 
-    console.log('data', data);
     const { doctorUser, dateappointment, appointmentTime, appointmentNotes, appointmentType } = data;
 
-    console.log('doctorUser', doctorUser);
-    console.log('dateappointment', dateappointment);
-    console.log('appointmentTime', appointmentTime);
     const doctorId = await findDoctorIdByUsername(doctorUser);
+    const doctor = await findDoctorByDoctorId(doctorId);
 
-    if (!doctorId) {
+    if (!doctor) {
       return res.status(404).json({ msg: 'Doctor not found' });
+    }
+
+    //check if appointment time is schedueled in the past
+    const isValidDate = validateAppointmentDate(dateappointment, appointmentTime);
+    if (!isValidDate) {
+      return res.status(400).json({ msg: 'Please choose a valid date' });
     }
 
     //check if doctor has appointments in the same time
@@ -47,9 +56,15 @@ export async function bookAppointmentHandler(req, res) {
       dateappointment,
       appointmentTime,
     );
-    console.log('appointmentInSameTime', appointmentInSameTime);
+
     if (appointmentInSameTime) {
       return res.status(400).json({ msg: 'Doctor or Patient has appointment in the same time' });
+    }
+
+    console.log('doctor.speciality', doctor.speciality);
+    console.log('appointmentType', appointmentType);
+    if (appointmentType != doctor.speciality) {
+      return res.status(400).json({ msg: 'Doctor speciality does not match with appointment type' });
     }
 
     let Report;
@@ -96,14 +111,15 @@ export async function getAvailableAppointmentDoctors(req, res) {
 
 export async function getAllAppointmentsHandler(req, res) {
   try {
-    const patientId = req.userId;
-    console.log('patientId', patientId);
-    const patient = await findPatientById(patientId);
+    const userPatientId = req.userId;
+    console.log('userPatientId', userPatientId);
+    const patient = await findPatientByUserId(userPatientId);
     console.log('patient', patient);
     if (!patient) {
       return res.status(404).json({ msg: 'Patient not found' });
     }
-    const appointments = await getAppointmentsByPatientId(patientId);
+    console.log('patientID', patient._id);
+    const appointments = await getAppointmentsByPatientId(patient._id);
     return res.status(200).json({ appointments });
   } catch (error) {
     console.log('Error in getAllAppointments controller', error.message);
@@ -113,12 +129,13 @@ export async function getAllAppointmentsHandler(req, res) {
 
 export async function getPatientAppointmentByIdHandler(req, res) {
   try {
-    const patientId = req.userId;
-    const appointmentId = req.params;
-    const patient = await findPatientById(patientId);
+    const userPatientId = req.userId;
+    const appointmentId = req.params.id;
+    const patient = await findPatientByUserId(userPatientId);
     if (!patient) {
       return res.status(404).json({ msg: 'Patient not found' });
     }
+    const patientId = patient._id;
     const appointment = await getAppointmentForPatient(patientId, appointmentId);
     if (!appointment) {
       return res.status(404).json({ msg: 'Appointment not found' });
@@ -127,5 +144,30 @@ export async function getPatientAppointmentByIdHandler(req, res) {
   } catch (error) {
     console.log('Error in getPatientAppointment controller', error.message);
     res.status(500).json({ error: 'Internal server error in getPatientAppointment' });
+  }
+}
+
+export async function deletePatientAppointmentByIdHandler(req, res) {
+  try {
+    const userPatientId = req.userId;
+    const appointmentId = req.params.id;
+    const patient = await findPatientByUserId(userPatientId);
+    if (!patient) {
+      return res.status(404).json({ msg: 'Patient not found' });
+    }
+    const patientId = patient._id;
+    const appointment = await getAppointmentForPatient(patientId, appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ msg: 'Appointment not found' });
+    }
+
+    const deletePatientAppointment = await deleteAppointmentById(appointmentId);
+    if (!deletePatientAppointment) {
+      return res.status(500).json({ msg: 'Failed to delete appointment' });
+    }
+    return res.status(200).json({ msg: 'Appointment deleted successfully' });
+  } catch (error) {
+    console.log('Error in deletePatientAppointment controller', error.message);
+    res.status(500).json({ error: 'Internal server error in deletePatientAppointment' });
   }
 }

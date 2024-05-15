@@ -1,13 +1,12 @@
 import Doctor from '../models/doctor.model.js';
 import appError from '../utils/app-error.js';
-
+import User from '../models/user.model.js';
 export async function findDoctorIdByUsername(doctorUsername) {
   // Find the doctor by username by populating the 'user' field
   try {
-    const doctor = await Doctor.findOne({}).populate({
-      path: 'user',
-      match: { username: doctorUsername },
-    });
+    const user = await User.findOne({ username: doctorUsername });
+    const userId = user._id;
+    const doctor = await Doctor.findOne({ user: userId });
 
     // If no doctor is found with the given username
     if (!doctor) {
@@ -37,5 +36,16 @@ export async function findDoctorsBySpeciality(speciality) {
   } catch (error) {
     console.error('Error finding doctors by speciality:', error);
     throw new appError('Failed to find doctors', 500);
+  }
+}
+
+export async function findDoctorByDoctorId(id) {
+  try {
+    const doctor = await Doctor.findById(id);
+    console.log('doctor:', doctor);
+    return doctor;
+  } catch (error) {
+    console.error('Error finding doctor by doctor ID:', error);
+    throw new appError('Failed to find doctor', 500);
   }
 }

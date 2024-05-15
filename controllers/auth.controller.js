@@ -98,13 +98,10 @@ export const logout = (req, res) => {
 
 export const patientRegister = async (req, res) => {
   try {
-    console.log('insideeeeeeeeeeeeeee');
     let Report;
     if (res.locals.report) {
       Report = res.locals.report;
     }
-
-    console.log(req.body);
     const data = JSON.parse(req.body.patientDetails);
 
     const { firstName, lastName, email, mobile, dob, gender, address, history } = data;

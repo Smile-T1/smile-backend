@@ -31,7 +31,18 @@ export async function getAppointmentsByPatientId(patientId) {
 
 export async function getAppointmentForPatient(patientId, appointmentId) {
   try {
-    const appointment = await Appointment.findOne({ _id: appointmentId, patient: patientId });
+    console.log('appointmentId:', appointmentId);
+    console.log('patientId:', patientId);
+    const appointment = await Appointment.findOne({ _id: appointmentId, patient: patientId })
+      .populate({
+        path: 'patient',
+        populate: { path: 'user', select: 'username firstName lastName' },
+      })
+      .populate({
+        path: 'doctor',
+        populate: { path: 'user', select: 'username firstName lastName' },
+      });
+
     return appointment;
   } catch (error) {
     throw new appError('Appointment not found', 500);
@@ -50,6 +61,7 @@ export async function updateAppointmentStatus(appointmentId, newStatus) {
 export async function deleteAppointmentById(appointmentId) {
   try {
     await Appointment.findByIdAndDelete(appointmentId);
+    return true;
   } catch (error) {
     throw new appError('Failed to delete appointment', 500);
   }
