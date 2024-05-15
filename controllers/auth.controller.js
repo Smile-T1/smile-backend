@@ -98,6 +98,7 @@ export const logout = (req, res) => {
 
 export const patientRegister = async (req, res) => {
   try {
+    console.log('insideeeeeeeeeeeeeee');
     let Report;
     if (res.locals.report) {
       Report = res.locals.report;

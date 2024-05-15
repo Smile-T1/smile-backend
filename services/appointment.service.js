@@ -2,6 +2,7 @@ import Appointment from '../models/appointment.model.js';
 import appError from '../utils/app-error.js';
 export async function createAppointment(patientId, doctorId, date, time, notes, report, type) {
   try {
+    console.log('Inside createAppointment service');
     const appointment = new Appointment({
       patient: patientId,
       doctor: doctorId,

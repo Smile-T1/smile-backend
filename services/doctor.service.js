@@ -25,7 +25,7 @@ export async function findDoctorsBySpeciality(speciality) {
     const query = speciality ? { speciality: speciality } : {};
 
     console.log('query:', query);
-    const doctors = await Doctor.find({ query });
+    const doctors = await Doctor.find(query);
     console.log('doctors:', doctors);
     const populatedDoctors = await Doctor.populate(doctors, { path: 'user', select: 'username' });
     const doctorUserNames = populatedDoctors.map((doctor) => doctor.user.username);

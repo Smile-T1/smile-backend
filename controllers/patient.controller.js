@@ -28,8 +28,12 @@ export async function bookAppointmentHandler(req, res) {
     //   req.body.appointmentDetails;
     const data = JSON.parse(req.body.appointmentDetails);
 
+    console.log('data', data);
     const { doctorUser, dateappointment, appointmentTime, appointmentNotes, appointmentType } = data;
 
+    console.log('doctorUser', doctorUser);
+    console.log('dateappointment', dateappointment);
+    console.log('appointmentTime', appointmentTime);
     const doctorId = await findDoctorIdByUsername(doctorUser);
 
     if (!doctorId) {
@@ -43,6 +47,7 @@ export async function bookAppointmentHandler(req, res) {
       dateappointment,
       appointmentTime,
     );
+    console.log('appointmentInSameTime', appointmentInSameTime);
     if (appointmentInSameTime) {
       return res.status(400).json({ msg: 'Doctor or Patient has appointment in the same time' });
     }
@@ -92,7 +97,9 @@ export async function getAvailableAppointmentDoctors(req, res) {
 export async function getAllAppointmentsHandler(req, res) {
   try {
     const patientId = req.userId;
+    console.log('patientId', patientId);
     const patient = await findPatientById(patientId);
+    console.log('patient', patient);
     if (!patient) {
       return res.status(404).json({ msg: 'Patient not found' });
     }
