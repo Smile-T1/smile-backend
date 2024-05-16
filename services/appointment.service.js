@@ -22,7 +22,10 @@ export async function createAppointment(patientId, doctorId, date, time, notes, 
 
 export async function getAppointmentsByPatientId(patientId) {
   try {
-    const appointments = await Appointment.find({ patient: patientId });
+    const appointments = await Appointment.find({ patient: patientId }).populate({
+      path: 'doctor',
+      populate: { path: 'user', select: 'username' },
+    });
     return appointments;
   } catch (error) {
     throw new appError('Appointments not found', 500);
