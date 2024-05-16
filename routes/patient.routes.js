@@ -10,12 +10,13 @@ import {
   getPatientAppointmentByIdHandler,
   deletePatientAppointmentByIdHandler,
   getNearestPatientAppointment,
+  getPatientInfoHandler,
 } from '../controllers/patient.controller.js';
 import uploadfile from '../middleware/multer/uploadReport.js';
 import uploadSingleCloudinary from '../middleware/cloudinary/uploadToCloudinary.js';
 const router = express.Router();
 /*Appointments */
-//router.get('/appointment', authCheck, checkPatient, getPatientInfoHandler);
+router.get('/settings', authCheck, checkPatient, getPatientInfoHandler);
 router.post('/appointment', authCheck, checkPatient, uploadfile, uploadSingleCloudinary, bookAppointmentHandler);
 
 router.get(
