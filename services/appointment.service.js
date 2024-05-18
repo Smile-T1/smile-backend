@@ -22,10 +22,12 @@ export async function createAppointment(patientId, doctorId, date, time, notes, 
 
 export async function getAppointmentsByPatientId(patientId) {
   try {
-    const appointments = await Appointment.find({ patient: patientId }).populate({
-      path: 'doctor',
-      populate: { path: 'user', select: 'username' },
-    });
+    const appointments = await Appointment.find({ patient: patientId })
+      .sort({ appointmentDate: 1 }) // Sort by appointmentDate in ascending order
+      .populate({
+        path: 'doctor',
+        populate: { path: 'user', select: 'username' },
+      });
     return appointments;
   } catch (error) {
     throw new appError('Appointments not found', 500);
@@ -105,35 +107,19 @@ export async function getNewestAppointmentForPatient(patientId) {
 
 export async function getNearestPendingAppointmentForPatient(patientId) {
   try {
-    // Get the current date and time
     const currentDate = new Date();
-
-    // Find the nearest pending appointment for the patient
-    const nearestAppointment = await Appointment.aggregate([
-      {
-        $match: {
-          patient: patientId,
-          status: 'Upcoming', // Only consider appointments with a pending status
-          createdAt: { $gte: currentDate }, // Scheduled date is on or after the current date
-        },
-      },
-      {
-        $addFields: {
-          appointmentDateTime: {
-            $dateFromString: {
-              dateString: { $concat: ['$dateappointment', 'T', '$appointmentTime'] },
-              format: '%d-%m-%YT%I:%M%p', // Format of the concatenated string
-            },
-          },
-        },
-      },
-      {
-        $sort: { appointmentDateTime: 1 }, // Sort by the new appointmentDateTime field
-      },
-    ]);
-
-    // Return the nearest appointment
-    return nearestAppointment[0]; // Assuming the first entry is the nearest appointment
+    // Find the nearest upcoming appointment for the patient
+    const nearestAppointment = await Appointment.findOne({
+      patient: patientId,
+      appointmentDate: { $gte: currentDate }, // Only consider appointments with a future date
+      status: 'Upcoming', // Assuming 'Upcoming' is the status for future appointments
+    })
+      .sort({ appointmentDate: 1 }) // Sort by appointmentDate in ascending order
+      .populate({
+        path: 'doctor',
+        populate: { path: 'user', select: 'username' },
+      });
+    return nearestAppointment;
   } catch (error) {
     console.error('Error fetching nearest pending appointment:', error);
     throw new Error('Failed to fetch nearest pending appointment');

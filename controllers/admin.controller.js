@@ -79,7 +79,7 @@ async function getTotalCounts(req, res) {
     });
   } catch (error) {
     console.error('Error getting totals');
-    res.status(500).json({message: "Error in admin controller"});
+    res.status(500).json({ message: 'Error in admin controller' });
   }
 }
 
@@ -92,15 +92,15 @@ async function getLatestAppointment(req, res) {
     }
 
     res.status(200).json({
-      patient: latestAppointment.patient.firstName + " " + latestAppointment.patient.lastName,
-      doctor: latestAppointment.doctor.firstName + " " + latestAppointment.doctor.lastName,
+      patient: latestAppointment.patient.firstName + ' ' + latestAppointment.patient.lastName,
+      doctor: latestAppointment.doctor.firstName + ' ' + latestAppointment.doctor.lastName,
       date: latestAppointment.date,
       time: latestAppointment.time,
-      Type: latestAppointment.Type
-    })
-  } catch(error) {
-    console.error("Error in getting latest appointment");
-    res.status(500).json({message: "Error in admin controller", error: error.message});
+      Type: latestAppointment.Type,
+    });
+  } catch (error) {
+    console.error('Error in getting latest appointment');
+    res.status(500).json({ message: 'Error in admin controller', error: error.message });
   }
 }
 

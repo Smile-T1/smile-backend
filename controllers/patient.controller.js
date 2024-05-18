@@ -100,9 +100,7 @@ export async function getAvailableAppointmentDoctors(req, res) {
 export async function getAllAppointmentsHandler(req, res) {
   try {
     const userPatientId = req.userId;
-    console.log('userPatientId', userPatientId);
     const patient = await findPatientByUserId(userPatientId);
-    console.log('patient', patient);
     if (!patient) {
       return res.status(404).json({ msg: 'Patient not found' });
     }
