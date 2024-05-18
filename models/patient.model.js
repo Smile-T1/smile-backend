@@ -48,17 +48,26 @@ const patientSchema = new mongoose.Schema(
       type: String,
       ref: 'Doctor',
     },
-    prescription: {
-      name: {
-        type: String,
+    prescription: [
+      {
+        Medication: {
+          type: String,
+          default: null,
+        },
+        Dosage: {
+          type: String,
+          default: null,
+        },
+        Consultation: {
+          type: String,
+          default: null,
+        },
+        doctorID: {
+          type: String,
+          default: null,
+        },
       },
-      dosage: {
-        type: String,
-      },
-      frequency: {
-        type: String,
-      },
-    },
+    ],
   },
   { timestamps: true },
 );

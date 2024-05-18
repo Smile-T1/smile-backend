@@ -13,4 +13,6 @@ router.get('/appointments', authCheck, checkDentist, doctorController.getDoctors
 
 router.post('/deleteAppointments', authCheck, checkDentist, doctorController.deleteDoctorAppointment);
 
+router.put('/editAppointment', authCheck, checkDentist, doctorController.addPrescription);
+
 export default router;

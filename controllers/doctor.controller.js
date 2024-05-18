@@ -167,7 +167,7 @@ async function deleteDoctorAppointment(req, res) {
 
     const doctorID = doctor._id;
 
-    const appointmentID = req.params.appointmentId;
+    const appointmentID = req.body.appointmentId;
 
     // Check if the appointment belongs to the specified doctor
     const appointment = await Appointment.findOne({ _id: appointmentID, doctor: doctorID });
@@ -185,6 +185,59 @@ async function deleteDoctorAppointment(req, res) {
   }
 }
 
+async function addPrescription(req, res) {
+  try {
+    const userdoctorID = req.userId;
+    const doctor = await findDoctorByUserId(userdoctorID);
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+    const doctorID = doctor._id;
+
+    const { Medication, Dosage, Consultation, appointmentID } = req.body;
+
+    if (!appointmentID) {
+      return res.status(400).json({ message: 'Appointment ID is required' });
+    }
+
+    const appointment = await Appointment.findById(appointmentID);
+
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+    const patient = await Patient.findById(appointment.patient);
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    // Check if the appointment belongs to the requesting doctor
+    if (appointment.doctor.toString() !== doctorID.toString()) {
+      return res.status(403).json({ message: 'You are not authorized to update this appointment' });
+    }
+
+    // Update the appointment with prescription details
+    appointment.prescription = {
+      Medication,
+      Dosage,
+      Consultation,
+    };
+
+    // Save the updated appointment
+    await appointment.save();
+
+    patient.prescription = {
+      Medication,
+      Dosage,
+      Consultation,
+      doctorID,
+    };
+    await patient.save();
+
+    return res.status(200).json({ success: true, message: 'Prescription added successfully' });
+  } catch (error) {
+    console.error('Error adding prescription:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
 
 
-export default { getDoctorPatients, editPatientInfo, getDoctorsAppointments, deleteDoctorAppointment };
+export default { getDoctorPatients, editPatientInfo, getDoctorsAppointments, deleteDoctorAppointment, addPrescription };
