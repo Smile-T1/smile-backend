@@ -25,6 +25,16 @@ async function getDoctorPatients(req, res) {
       return res.status(404).json({ message: 'No patients found' });
     }
 
+    // Calculate and include age for each patient in the response
+    patients.forEach((patient) => {
+      if (patient.user.dob) {
+        const diff = Date.now() - patient.user.dob.getTime();
+        const ageDate = new Date(diff);
+        patient.user.age = Math.abs(ageDate.getUTCFullYear() - 1970);
+      }
+    });
+
+    // Send back response including age
     return res.status(200).json({ success: true, patients });
   } catch (error) {
     console.error('Error getting patients:', error);
@@ -106,19 +116,46 @@ async function getDoctorsAppointments(req, res) {
 
     const doctorID = doctor._id;
 
-    // get all appointments and populate the 'patients and doctors' field with user information
-    const appointments = await Appointment.find({ doctor: doctorID }).populate('patient').populate('doctor');
+    // get all appointments and populate the 'patient' field with patient information
+    const appointments = await Appointment.find({ doctor: doctorID }).populate('patient');
 
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({ message: 'No appointments found' });
     }
 
-    return res.status(200).json({ success: true, appointments });
+    // Prepare an array to hold appointments with patient names
+    const appointmentsWithPatientNames = [];
+
+    // Iterate over each appointment to extract patient information
+    for (const appointment of appointments) {
+      if (!appointment.patient) {
+        continue; // Skip if patient information is missing
+      }
+
+      const userInfo = await User.findById(appointment.patient.user);
+      if (!userInfo) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const patientName = userInfo.firstName + ' ' + userInfo.lastName;
+
+      // Create a new object with appointment details and patient name
+      const appointmentWithPatientName = {
+        appointment,
+        patientName: patientName,
+      };
+
+      appointmentsWithPatientNames.push(appointmentWithPatientName);
+    }
+
+    return res.status(200).json({ success: true, appointments: appointmentsWithPatientNames });
   } catch (error) {
     console.error('Error getting appointments:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+
 
 async function deleteDoctorAppointment(req, res) {
   try {
@@ -130,7 +167,7 @@ async function deleteDoctorAppointment(req, res) {
 
     const doctorID = doctor._id;
 
-    const appointmentID = req.params.appointmentId;
+    const appointmentID = req.body.appointmentId;
 
     // Check if the appointment belongs to the specified doctor
     const appointment = await Appointment.findOne({ _id: appointmentID, doctor: doctorID });
@@ -148,4 +185,59 @@ async function deleteDoctorAppointment(req, res) {
   }
 }
 
-export default { getDoctorPatients, editPatientInfo, getDoctorsAppointments, deleteDoctorAppointment };
+async function addPrescription(req, res) {
+  try {
+    const userdoctorID = req.userId;
+    const doctor = await findDoctorByUserId(userdoctorID);
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+    const doctorID = doctor._id;
+
+    const { Medication, Dosage, Consultation, appointmentID } = req.body;
+
+    if (!appointmentID) {
+      return res.status(400).json({ message: 'Appointment ID is required' });
+    }
+
+    const appointment = await Appointment.findById(appointmentID);
+
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+    const patient = await Patient.findById(appointment.patient);
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    // Check if the appointment belongs to the requesting doctor
+    if (appointment.doctor.toString() !== doctorID.toString()) {
+      return res.status(403).json({ message: 'You are not authorized to update this appointment' });
+    }
+
+    // Update the appointment with prescription details
+    appointment.prescription = {
+      Medication,
+      Dosage,
+      Consultation,
+    };
+
+    // Save the updated appointment
+    await appointment.save();
+
+    patient.prescription = {
+      Medication,
+      Dosage,
+      Consultation,
+      doctorID,
+    };
+    await patient.save();
+
+    return res.status(200).json({ success: true, message: 'Prescription added successfully' });
+  } catch (error) {
+    console.error('Error adding prescription:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+export default { getDoctorPatients, editPatientInfo, getDoctorsAppointments, deleteDoctorAppointment, addPrescription };

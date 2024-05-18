@@ -11,6 +11,8 @@ router.patch('/editPatientInfo', authCheck, checkDentist, doctorController.editP
 
 router.get('/appointments', authCheck, checkDentist, doctorController.getDoctorsAppointments);
 
-router.get('/deleteAppointments', authCheck, checkDentist, doctorController.deleteDoctorAppointment);
+router.post('/deleteAppointments', authCheck, checkDentist, doctorController.deleteDoctorAppointment);
+
+router.put('/editAppointment', authCheck, checkDentist, doctorController.addPrescription);
 
 export default router;

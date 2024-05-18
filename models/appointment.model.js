@@ -48,6 +48,25 @@ const appointmentSchema = new mongoose.Schema(
         'Emergency Dental Care',
       ],
     },
+    prescription: [
+      {
+        Medication: {
+          type: String,
+          default: null,
+        },
+        Dosage: {
+          type: String,
+          default: null,
+        },
+        Consultation: {
+          type: String,
+          default: null,
+        },
+      },
+    ],
+    lastVisit: {
+      
+    },
   },
   { timestamps: true },
 );

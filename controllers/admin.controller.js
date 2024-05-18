@@ -18,11 +18,11 @@ async function getList(req, res) {
     switch (type) {
       case 'patients':
         modelName = Patient;
-        populateFields.push({ path: 'user', select: '-password' });
+        populateFields.push({ path: 'user', select: 'firstName lastName email mobile address' });
         break;
       case 'doctors':
         modelName = Doctor;
-        populateFields.push({ path: 'user', select: '-password' });
+        populateFields.push({ path: 'user', select: 'firstName lastName email mobile address' });
         break;
       case 'appointments':
         modelName = Appointment;
@@ -32,7 +32,7 @@ async function getList(req, res) {
         return res.status(400).json({ message: 'Invalid type parameter' });
     }
 
-    data = await modelName.find({}).populate(populateFields);
+    data = await modelName.find({}, { speciality: 1 }).populate(populateFields);
 
     if (!data || data.length === 0) {
       return res.status(404).json({ message: `No ${type} found` });
@@ -44,6 +44,7 @@ async function getList(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
+
 
 async function deleteUser(req, res) {
   try {
