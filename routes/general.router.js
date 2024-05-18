@@ -7,4 +7,5 @@ const router = express.Router();
 
 router.get('/info', authCheck, generalController.getnfo);
 
+router.get('/settings', authCheck, generalController.getSettingsHandler);
 export default router;

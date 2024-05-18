@@ -8,12 +8,13 @@ import {
   getAvailableAppointmentDoctors,
   getAllAppointmentsHandler,
   getPatientAppointmentByIdHandler,
+  deletePatientAppointmentByIdHandler,
+  getNearestPatientAppointment,
 } from '../controllers/patient.controller.js';
 import uploadfile from '../middleware/multer/uploadReport.js';
 import uploadSingleCloudinary from '../middleware/cloudinary/uploadToCloudinary.js';
 const router = express.Router();
 /*Appointments */
-//router.get('/appointment', authCheck, checkPatient, getPatientInfoHandler);
 router.post('/appointment', authCheck, checkPatient, uploadfile, uploadSingleCloudinary, bookAppointmentHandler);
 
 router.get(
@@ -34,6 +35,14 @@ router.get(
   getPatientAppointmentByIdHandler,
 );
 
-router.delete('/appointment/:id', authCheck, checkPatient, validateResource(getAppointmentSchema));
+router.delete(
+  '/appointment/:id',
+  authCheck,
+  checkPatient,
+  validateResource(getAppointmentSchema),
+  deletePatientAppointmentByIdHandler,
+);
+
+router.get('/newestAppointment', authCheck, checkPatient, getNearestPatientAppointment);
 
 export default router;

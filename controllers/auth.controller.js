@@ -102,8 +102,6 @@ export const patientRegister = async (req, res) => {
     if (res.locals.report) {
       Report = res.locals.report;
     }
-
-    console.log(req.body);
     const data = JSON.parse(req.body.patientDetails);
 
     const { firstName, lastName, email, mobile, dob, gender, address, history } = data;
