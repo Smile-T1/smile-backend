@@ -18,12 +18,18 @@ async function getDoctorPatients(req, res) {
     }
 
     const doctorID = doctor._id;
-    // get all patients and populate the 'user' field with user information
-    const patients = await Patient.find({ linkedDoctor: doctorID }).populate('user');
+    // get all appointments linked to this doctor
+    const linkedAppointments = await Appointment.find({ doctor: doctorID }).populate({
+      path: 'patient',
+      populate: { path: 'user' } // Populate the user field in patients
+    });
 
-    if (!patients || patients.length === 0) {
+    if (!linkedAppointments || linkedAppointments.length === 0) {
       return res.status(404).json({ message: 'No patients found' });
     }
+
+    // Extract patients from appointments
+    const patients = linkedAppointments.map((appointment) => appointment.patient);
 
     // Calculate and include age for each patient in the response
     patients.forEach((patient) => {
