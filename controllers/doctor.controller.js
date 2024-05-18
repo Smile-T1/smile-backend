@@ -2,7 +2,7 @@ import Patient from '../models/patient.model.js';
 import Doctor from '../models/doctor.model.js';
 import User from '../models/user.model.js';
 import Appointment from '../models/appointment.model.js';
-
+import { findDoctorByUserId } from '../services/doctor.service.js';
 /**
  * Get all patients assigned to a doctor.
  * @param {import('express').Request} req - The Express request object.
@@ -11,7 +11,13 @@ import Appointment from '../models/appointment.model.js';
  */
 async function getDoctorPatients(req, res) {
   try {
-    const doctorID = req.userId;
+    const userdoctorID = req.userId;
+    const doctor = await findDoctorByUserId(userdoctorID);
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    const doctorID = doctor._id;
     // get all patients and populate the 'user' field with user information
     const patients = await Patient.find({ linkedDoctor: doctorID }).populate('user');
 
@@ -92,7 +98,13 @@ async function editPatientInfo(req, res) {
 
 async function getDoctorsAppointments(req, res) {
   try {
-    const doctorID = req.userId;
+    const userdoctorID = req.userId;
+    const doctor = await findDoctorByUserId(userdoctorID);
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    const doctorID = doctor._id;
 
     // get all appointments and populate the 'patients and doctors' field with user information
     const appointments = await Appointment.find({ doctor: doctorID }).populate('patient').populate('doctor');
@@ -110,7 +122,14 @@ async function getDoctorsAppointments(req, res) {
 
 async function deleteDoctorAppointment(req, res) {
   try {
-    const doctorID = req.userId;
+    const userdoctorID = req.userId;
+    const doctor = await findDoctorByUserId(userdoctorID);
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    const doctorID = doctor._id;
+
     const appointmentID = req.params.appointmentId;
 
     // Check if the appointment belongs to the specified doctor

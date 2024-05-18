@@ -34,8 +34,6 @@ export async function getAppointmentsByPatientId(patientId) {
 
 export async function getAppointmentForPatient(patientId, appointmentId) {
   try {
-    console.log('appointmentId:', appointmentId);
-    console.log('patientId:', patientId);
     const appointment = await Appointment.findOne({ _id: appointmentId, patient: patientId })
       .populate({
         path: 'patient',

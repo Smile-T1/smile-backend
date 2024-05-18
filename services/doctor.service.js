@@ -52,3 +52,29 @@ export async function findDoctorByDoctorId(id) {
     throw new appError('Failed to find doctor', 500);
   }
 }
+
+export async function findDoctorByUserId(userID) {
+  try {
+    const doctor = await Doctor.findOne({ user: userID }).populate({
+      path: 'user',
+      select: '-password -access',
+    });
+    return doctor;
+  } catch (error) {
+    console.error('Error finding doctor:', error);
+    throw new Error('Failed to find doctor');
+  }
+}
+
+export async function getDoctorUserInfo(userID) {
+  try {
+    const doctor = await Doctor.findOne({ user: userID }).populate({
+      path: 'user',
+      select: '-password -access',
+    });
+    return doctor.user;
+  } catch (error) {
+    console.error('Error getting patient information:', error);
+    throw new Error('Failed to get patient information');
+  }
+}

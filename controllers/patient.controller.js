@@ -9,21 +9,6 @@ import {
 } from '../services/appointment.service.js';
 import { validateAppointmentDate } from '../utils/checkDate.js';
 import { findPatientByUserId } from '../services/patient.service.js';
-export async function getPatientInfoHandler(req, res) {
-  try {
-    const patientUserId = req.userId;
-    // Find the patient by user ID and populate the 'user' field with user information
-    const patient = await findPatientByUserId(patientUserId);
-    if (!patient) {
-      return res.status(404).json({ msg: 'Patient not found' });
-    }
-    //populate and exclude password and access
-    return res.status(200).json({ patient });
-  } catch (error) {
-    console.error('Error getting patient information:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
-}
 
 export async function bookAppointmentHandler(req, res) {
   try {
