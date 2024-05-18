@@ -108,10 +108,10 @@ async function editPatientInfo(req, res) {
 async function getDoctorsAppointments(req, res) {
   try {
     const doctorID = req.userId;
-
+    console.log(doctorID);
     // get all appointments and populate the 'patients and doctors' field with user information
-    const appointments = await Appointment.find({ doctor: doctorID }).populate('patient').populate('doctor');
-
+    const appointments = await Appointment.find({ doctor: doctorID }).populate('patient');
+    
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({ message: 'No appointments found' });
     }
@@ -126,7 +126,7 @@ async function getDoctorsAppointments(req, res) {
 async function deleteDoctorAppointment(req, res) {
   try {
     const doctorID = req.userId;
-    const appointmentID = req.params.appointmentId;
+    const appointmentID = req.body.appointmentId;
 
     // Check if the appointment belongs to the specified doctor
     const appointment = await Appointment.findOne({ _id: appointmentID, doctor: doctorID });
