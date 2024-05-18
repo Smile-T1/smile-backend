@@ -20,6 +20,9 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       required: [true, 'missing the time of appointment'],
     },
+    appointmentDate: {
+      type: Date,
+    },
     status: {
       type: String,
       enum: ['Upcoming', 'Cancelled', 'Completed'],
@@ -48,6 +51,19 @@ const appointmentSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+// Middleware to convert date and time to appointmentDate
+appointmentSchema.pre('save', function (next) {
+  if (this.date && this.time) {
+    const [day, month, year] = this.date.split('-').map(Number);
+    const [hour, minute] = this.time.match(/\d+/g).map(Number);
+    const isPM = this.time.includes('PM');
+    const adjustedHour = (hour % 12) + (isPM ? 12 : 0);
+
+    this.appointmentDate = new Date(year, month - 1, day, adjustedHour, minute);
+  }
+  next();
+});
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
 

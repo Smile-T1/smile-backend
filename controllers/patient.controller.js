@@ -68,6 +68,7 @@ export async function bookAppointmentHandler(req, res) {
       Report,
       appointmentType,
     );
+
     if (!newAppointment) {
       return res.status(500).json({ msg: 'Failed to book appointment' });
     }
