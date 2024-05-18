@@ -116,19 +116,46 @@ async function getDoctorsAppointments(req, res) {
 
     const doctorID = doctor._id;
 
-    // get all appointments and populate the 'patients and doctors' field with user information
+    // get all appointments and populate the 'patient' field with patient information
     const appointments = await Appointment.find({ doctor: doctorID }).populate('patient');
-    
+
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({ message: 'No appointments found' });
     }
 
-    return res.status(200).json({ success: true, appointments });
+    // Prepare an array to hold appointments with patient names
+    const appointmentsWithPatientNames = [];
+
+    // Iterate over each appointment to extract patient information
+    for (const appointment of appointments) {
+      if (!appointment.patient) {
+        continue; // Skip if patient information is missing
+      }
+
+      const userInfo = await User.findById(appointment.patient.user);
+      if (!userInfo) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const patientName = userInfo.firstName + ' ' + userInfo.lastName;
+
+      // Create a new object with appointment details and patient name
+      const appointmentWithPatientName = {
+        appointment,
+        patientName: patientName,
+      };
+
+      appointmentsWithPatientNames.push(appointmentWithPatientName);
+    }
+
+    return res.status(200).json({ success: true, appointments: appointmentsWithPatientNames });
   } catch (error) {
     console.error('Error getting appointments:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+
 
 async function deleteDoctorAppointment(req, res) {
   try {
@@ -157,5 +184,7 @@ async function deleteDoctorAppointment(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+
 
 export default { getDoctorPatients, editPatientInfo, getDoctorsAppointments, deleteDoctorAppointment };
