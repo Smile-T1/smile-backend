@@ -21,3 +21,13 @@ export async function findUserById(userId) {
     throw new Error('User not found');
   }
 }
+
+export async function getUserInfo(userId) {
+  try {
+    const user = await User.findById(userId).select('-password -access');
+    console.log('user:', user);
+    return user;
+  } catch (error) {
+    throw new Error('User not found');
+  }
+}
