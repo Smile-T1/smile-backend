@@ -105,4 +105,18 @@ async function getLatestAppointment(req, res) {
   }
 }
 
-export default { getList, deleteUser, getTotalCounts, getLatestAppointment };
+async function getPendingAppointments(req, res) {
+  try {
+    const pendingAppointments = await AdminService.getPendingAppointments();
+    if (pendingAppointments.success) {
+      res.status(200).json({data: pendingAppointments.data});
+    } else {
+      res.status(400).json({data: pendingAppointments.data});
+    }
+  } catch(error) {
+    console.error('Error in getting pending appointments');
+    res.status(500).json({message: 'Error in admin controller', error: error.message});
+  }
+}
+
+export default { getList, deleteUser, getTotalCounts, getLatestAppointment, getPendingAppointments };
