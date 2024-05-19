@@ -122,4 +122,19 @@ async function getPendingAppointments(req, res) {
   }
 }
 
-export default { getList, deleteUser, getTotalCounts, getLatestAppointment, getPendingAppointments };
+async function handleAppointmentAction(req, res) {
+  const {appointmentId, action} = req.body;
+
+  try {
+    const result = await AdminService.handleAppointmentAction(appointmentId, action);
+    if(result.success) {
+      res.status(200).json({message: result.message});
+    } else {
+      res.status(400).json({message: result.message});
+    }
+  } catch (error) {
+    res.status(500).json({message: error.message});
+  }
+}
+
+export default { getList, deleteUser, getTotalCounts, getLatestAppointment, getPendingAppointments, handleAppointmentAction };

@@ -80,6 +80,35 @@ const AdminService = {
       console.error('Cannot get pending appointments', error);
       throw new Error('Cannot get pending appointments');
     }
+  },
+
+  async handleAppointmentAction(appointmentId, action) {
+    try {
+      let appointment = await Appointment.findById(appointmentId);
+      
+      if (!appointment) {
+        throw new Error('Appointment not found');
+      }
+  
+      if (appointment.status !== 'Pending') {
+        throw new Error('Appointment status is not Pending');
+      }
+  
+      if (action === 'accept') {
+        appointment.status = 'Upcoming'; // Or any other status you want to set for accepted appointments
+      } else if (action === 'decline') {
+        await Appointment.findByIdAndRemove(appointmentId);
+        return { success: true, message: 'Appointment declined and removed from database' };
+      } else {
+        throw new Error('Invalid action');
+      }
+  
+      await appointment.save();
+      return { success: true, message: 'Appointment action successfully processed' };
+    } catch (error) {
+      console.error('Error handling appointment action:', error);
+      throw new Error('Error handling appointment action');
+    }
   }
 };
 

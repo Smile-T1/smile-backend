@@ -5,6 +5,8 @@ import adminCheck from '../middleware/auth/is-admin.js';
 
 const router = express.Router();
 
+router.post('/handleAppointment', authCheck, adminCheck, adminController.handleAppointmentAction);
+
 router.get('/totals', authCheck, adminCheck, adminController.getTotalCounts);
 router.get('/pendingAppoitments', authCheck, adminCheck, adminController.getPendingAppointments);
 router.get('/latestAppointment', authCheck, adminCheck, adminController.getLatestAppointment);
