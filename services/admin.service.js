@@ -72,7 +72,7 @@ const AdminService = {
       );
   
       if (filteredAppointments.length === 0) {
-        return { success: true, data: 'No pending appointments with valid patient and doctor' };
+        return { success: true, data: ""};
       }
   
       return { success: true, data: filteredAppointments };
