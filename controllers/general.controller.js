@@ -98,7 +98,7 @@ async function changePasswordHandler(req, res) {
       return res.status(404).json({ message: 'User not found' });
     }
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: 'Old password is incorrect' });
+      return res.status(404).json({ message: 'Old password is incorrect' });
     }
 
     if (newPassword !== confirmPassword) {
