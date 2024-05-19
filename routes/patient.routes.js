@@ -10,8 +10,10 @@ import {
   getPatientAppointmentByIdHandler,
   deletePatientAppointmentByIdHandler,
   getNearestPatientAppointment,
+  uploadProfilePicHandler,
 } from '../controllers/patient.controller.js';
 import uploadfile from '../middleware/multer/uploadReport.js';
+import upload from '../middleware/multer/uploadPhoto.js';
 import uploadSingleCloudinary from '../middleware/cloudinary/uploadToCloudinary.js';
 const router = express.Router();
 /*Appointments */
@@ -44,5 +46,14 @@ router.delete(
 );
 
 router.get('/newestAppointment', authCheck, checkPatient, getNearestPatientAppointment);
+
+router.post(
+  '/uploadProfilePic',
+  authCheck,
+  checkPatient,
+  upload.single('profilePic'),
+  uploadSingleCloudinary,
+  uploadProfilePicHandler,
+);
 
 export default router;

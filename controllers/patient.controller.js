@@ -7,6 +7,7 @@ import {
   updateAppointmentStatus,
   getNearestPendingAppointmentForPatient,
 } from '../services/appointment.service.js';
+import { findUserandUpdateProfilePic } from '../services/user.service.js';
 import { validateAppointmentDate } from '../utils/checkDate.js';
 import { findPatientByUserId } from '../services/patient.service.js';
 
@@ -171,5 +172,31 @@ export async function getNearestPatientAppointment(req, res) {
   } catch (error) {
     console.log('Error in getNearestPatientAppointment controller', error.message);
     res.status(500).json({ error: 'Internal server error in getNearestPatientAppointment' });
+  }
+}
+
+export async function uploadProfilePicHandler(req, res) {
+  try {
+    const userPatientId = req.userId;
+    const patient = await findPatientByUserId(userPatientId);
+    if (!patient) {
+      return res.status(404).json({ msg: 'Patient not found' });
+    }
+    console.log('patient', patient);
+    const profilePic = res.locals.report;
+    console.log('profilePic', profilePic);
+    if (!profilePic) {
+      return res.status(404).json({ msg: 'Please upload a profile picture' });
+    }
+
+    const updatedPatientProfile = await findUserandUpdateProfilePic(userPatientId, profilePic);
+    if (!updatedPatientProfile) {
+      return res.status(500).json({ msg: 'Failed to update profile picture' });
+    }
+
+    return res.status(200).json({ msg: 'Profile picture uploaded successfully', updatedPatientProfile });
+  } catch (error) {
+    console.log('Error in uploadProfilePic controller', error.message);
+    res.status(500).json({ error: 'Internal server error in uploadProfilePic' });
   }
 }
