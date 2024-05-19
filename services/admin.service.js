@@ -66,7 +66,16 @@ const AdminService = {
         return { success: true, data: 'No pending appointments' };
       }
   
-      return { success: true, data: pendingAppointments };
+      // Filter out appointments with null patient or doctor references
+      const filteredAppointments = pendingAppointments.filter(
+        (appointment) => appointment.patient && appointment.doctor
+      );
+  
+      if (filteredAppointments.length === 0) {
+        return { success: true, data: 'No pending appointments with valid patient and doctor' };
+      }
+  
+      return { success: true, data: filteredAppointments };
     } catch (error) {
       console.error('Cannot get pending appointments', error);
       throw new Error('Cannot get pending appointments');
