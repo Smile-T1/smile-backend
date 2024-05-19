@@ -26,7 +26,15 @@ async function getnfo(req, res) {
       information = await Patient.findOne({ user: id }).populate('user');
     } else if (type == 'appointment') {
       // Find the appointment by user ID and populate fields with information
-      information = await Appointment.findById(id).populate('patient').populate('doctor');
+      information = await Appointment.findById(id)
+        .populate({
+          path: 'patient',
+          populate: { path: 'user', select: 'firstName lastName' },
+        })
+        .populate({
+          path: 'doctor',
+          populate: { path: 'user', select: 'firstName lastName' },
+        });
     } else {
       return res.status(400).json({ message: 'Wrong Parameter' });
     }
@@ -107,4 +115,22 @@ async function changePasswordHandler(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
-export default { getnfo, getSettingsHandler, changePasswordHandler };
+
+async function editSettingsHandler(req, res) {
+  try {
+    const { name, email, phone } = req.body;
+    const user = await findUserById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.name = name;
+    user.email = email;
+    user.phone = phone;
+    await user.save();
+    return res.status(200).json({ message: 'Settings updated successfully' });
+  } catch (error) {
+    console.error('Error editing settings:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
+export default { getnfo, getSettingsHandler, changePasswordHandler, editSettingsHandler };
