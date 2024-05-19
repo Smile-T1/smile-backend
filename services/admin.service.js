@@ -1,6 +1,7 @@
 import Appointment from '../models/appointment.model.js';
 import Doctor from '../models/doctor.model.js';
 import Patient from '../models/patient.model.js';
+import User from '../models/user.model.js';
 
 const AdminService = {
   async getTotalDoctors() {
@@ -45,16 +46,30 @@ const AdminService = {
     }
   },
 
-  async getPendingAppointments () {
+  async getPendingAppointments() {
     try {
-      pendingAppointments = await Appointment.find({status: "Pending"});
-      if(!pendingAppointments) {
-        return {success: true, data: "No pending appointments"};
+      const pendingAppointments = await Appointment.find({ status: 'Pending' })
+        .populate({
+          path: 'patient',
+          model: User,
+          select: 'firstName lastName',
+        })
+        .populate({
+          path: 'doctor',
+          model: Doctor,
+          select: 'user speciality',
+          populate: { path: 'user', model: User, select: 'firstName lastName' },
+        })
+        .select('date time Type');
+  
+      if (pendingAppointments.length === 0) {
+        return { success: true, data: 'No pending appointments' };
       }
-      return {success: true, data: pendingAppointments};
+  
+      return { success: true, data: pendingAppointments };
     } catch (error) {
-      console.error("Cannot get pending appointments");
-      throw new Error("Cannot get pending appointments");
+      console.error('Cannot get pending appointments', error);
+      throw new Error('Cannot get pending appointments');
     }
   }
 };

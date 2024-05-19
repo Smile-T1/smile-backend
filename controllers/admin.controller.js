@@ -107,7 +107,10 @@ async function getLatestAppointment(req, res) {
 
 async function getPendingAppointments(req, res) {
   try {
+    console.log("#####");
     const pendingAppointments = await AdminService.getPendingAppointments();
+    console.log(pendingAppointments);
+    console.log('#####');
     if (pendingAppointments.success) {
       res.status(200).json({data: pendingAppointments.data});
     } else {
