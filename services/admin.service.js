@@ -44,6 +44,19 @@ const AdminService = {
       throw error;
     }
   },
+
+  async getPendingAppointments () {
+    try {
+      pendingAppointments = await Appointment.find({status: "Pending"});
+      if(!pendingAppointments) {
+        return {success: true, data: "No pending appointments"};
+      }
+      return {success: true, data: pendingAppointments};
+    } catch (error) {
+      console.error("Cannot get pending appointments");
+      throw new Error("Cannot get pending appointments");
+    }
+  }
 };
 
 export default AdminService;
