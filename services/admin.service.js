@@ -33,7 +33,7 @@ const AdminService = {
 
   async getLatestAppointment() {
     try {
-      const latestAppointment = await Appointment.findOne({}).sort({ createdAt: -1 }).populate(['patient', 'doctor']);
+      const latestAppointment = await Appointment.find({}).sort({ createdAt: -1 }).populate(['patient', 'doctor']);
 
       if (!latestAppointment) {
         throw new Error('No appointments found');

@@ -86,19 +86,13 @@ async function getTotalCounts(req, res) {
 
 async function getLatestAppointment(req, res) {
   try {
-    const latestAppointment = await AdminService.getLatestAppointment();
+    const latestAppointments = await AdminService.getLatestAppointment();
 
-    if (!latestAppointment) {
+    if (!latestAppointments) {
       return res.status(404).json({ message: 'No appointment found' });
     }
 
-    res.status(200).json({
-      patient: latestAppointment.patient.firstName + ' ' + latestAppointment.patient.lastName,
-      doctor: latestAppointment.doctor.firstName + ' ' + latestAppointment.doctor.lastName,
-      date: latestAppointment.date,
-      time: latestAppointment.time,
-      Type: latestAppointment.Type,
-    });
+    res.status(200).json({data: latestAppointments});
   } catch (error) {
     console.error('Error in getting latest appointment');
     res.status(500).json({ message: 'Error in admin controller', error: error.message });
