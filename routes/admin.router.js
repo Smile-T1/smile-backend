@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/handleAppointment', authCheck, adminCheck, adminController.handleAppointmentAction);
 
 router.get('/totals', authCheck, adminCheck, adminController.getTotalCounts);
+router.get('/appoitment/:status', authCheck, adminCheck, adminController.getAppointmentsByStatus);
 router.get('/pendingAppoitments', authCheck, adminCheck, adminController.getPendingAppointments);
 router.get('/latestAppointment', authCheck, adminCheck, adminController.getLatestAppointment);
 router.get('/:type', authCheck, adminCheck, adminController.getList);

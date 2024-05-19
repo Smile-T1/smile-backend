@@ -109,6 +109,21 @@ const AdminService = {
       console.error('Error handling appointment action:', error);
       throw new Error('Error handling appointment action');
     }
+  },
+
+  async getAppointmentsByStatus(status) {
+    try {
+      const appointments = await Appointment.find({ status });
+  
+      if (appointments.length === 0) {
+        return { success: true, data: `No ${status} appointments` };
+      }
+  
+      return { success: true, data: appointments };
+    } catch (error) {
+      console.error(`Cannot get ${status} appointments`, error);
+      throw new Error(`Cannot get ${status} appointments`);
+    }
   }
 };
 

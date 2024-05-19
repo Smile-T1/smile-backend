@@ -137,4 +137,19 @@ async function handleAppointmentAction(req, res) {
   }
 }
 
-export default { getList, deleteUser, getTotalCounts, getLatestAppointment, getPendingAppointments, handleAppointmentAction };
+async function getAppointmentsByStatus(req, res) {
+  const {status} = req.params;
+
+  try {
+    const appointments = await AdminService.getAppointmentsByStatus(status);
+    if(appointments.success) {
+      res.status(200).json({data: appointments.data});
+    } else {
+      res.status(400).json({data: appointments.data});
+    }
+  } catch (error) {
+    res.status(500).json({message: error.message});
+  }
+}
+
+export default { getList, deleteUser, getTotalCounts, getLatestAppointment, getPendingAppointments, handleAppointmentAction, getAppointmentsByStatus };
