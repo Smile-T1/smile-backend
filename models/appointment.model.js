@@ -64,9 +64,7 @@ const appointmentSchema = new mongoose.Schema(
         },
       },
     ],
-    lastVisit: {
-      
-    },
+    lastVisit: {},
   },
   { timestamps: true },
 );
