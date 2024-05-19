@@ -1,7 +1,9 @@
+import bcrypt from 'bcryptjs';
 import Patient from '../models/patient.model.js';
 import Doctor from '../models/doctor.model.js';
 import User from '../models/user.model.js';
 import Appointment from '../models/appointment.model.js';
+import { findUserById } from '../services/user.service.js';
 import { getPatientUserInfo } from '../services/patient.service.js';
 import { getDoctorUserInfo } from '../services/doctor.service.js';
 /**
@@ -67,4 +69,32 @@ async function getSettingsHandler(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
-export default { getnfo, getSettingsHandler };
+
+async function changePasswordHandler(req, res) {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const user = await findUserById(req.userId);
+    const isPasswordCorrect = await bcrypt.compare(currentPassword, user?.password || '');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: 'Old password is incorrect' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'Confirm password must match new password' });
+    }
+    // HASH PASSWORD HERE
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password = hashedPassword;
+    await user.save();
+    return res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
+export default { getnfo, getSettingsHandler, changePasswordHandler };

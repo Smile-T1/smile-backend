@@ -12,3 +12,12 @@ export async function findUserandUpdateProfilePic(userID, profilePic) {
     throw new Error('Failed to update profile picture');
   }
 }
+
+export async function findUserById(userId) {
+  try {
+    const user = await User.findById(userId);
+    return user;
+  } catch (error) {
+    throw new Error('User not found');
+  }
+}
