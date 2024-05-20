@@ -1,7 +1,10 @@
+import mongoose from 'mongoose';
 import Appointment from '../models/appointment.model.js';
 import Doctor from '../models/doctor.model.js';
 import Patient from '../models/patient.model.js';
 import User from '../models/user.model.js';
+
+
 
 const AdminService = {
   async getTotalDoctors() {
@@ -143,11 +146,10 @@ const AdminService = {
     }
   },
 
-  async  deleteUserByUsername(username) {
+  async  deleteUserByUsername(userId) {
     try {
-      console.log(username)
       // Find the user by username
-      const user = await User.findOne({ username });
+      const user = await User.findOne({ _id: userId});
   
       if (!user) {
         throw new Error('User not found');
@@ -157,7 +159,7 @@ const AdminService = {
       await Appointment.deleteMany({ $or: [{ patient: user._id }, { doctor: user._id }] });
   
       // Delete the user
-      await User.findOneAndDelete({ username });
+      await User.findOneAndDelete({ user });
   
       return { success: true, message: 'User and related data deleted successfully' };
     } catch (error) {

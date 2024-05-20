@@ -147,9 +147,9 @@ async function getAppointmentsByStatus(req, res) {
 }
 
 async function deleteUser(req, res) {
-  const { username } = req.params;
+  const { userId } = req.params;
   try {
-    const result = await AdminService.deleteUserByUsername(username);
+    const result = await AdminService.deleteUserByUsername(userId);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
