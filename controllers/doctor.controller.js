@@ -123,7 +123,7 @@ async function getDoctorsAppointments(req, res) {
     const doctorID = doctor._id;
 
     // get all appointments and populate the 'patient' field with patient information
-    const appointments = await Appointment.find({ doctor: doctorID, status: { $ne: 'Pending' } }).populate('patient');
+    const appointments = await Appointment.find({ doctor: doctorID, status: 'Pending'  }).populate('patient');
 
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({ message: 'No appointments found' });
@@ -178,11 +178,10 @@ async function deleteDoctorAppointment(req, res) {
     if (!appointment) {
       return res.status(404).json({ message: 'Appointment not found or does not belong to the doctor' });
     }
-
-    // Delete the appointment
-    await Appointment.findByIdAndDelete(appointmentID);
-
-    return res.status(200).json({ success: true, message: 'Appointment deleted successfully' });
+    // Cancel the appointment
+    appointment.status = 'Cancelled';
+    appointment.save();
+    return res.status(200).json({ success: true, message: 'Appointment cancelled successfully' });
   } catch (error) {
     console.error('Error deleting appointment:', error);
     return res.status(500).json({ message: 'Internal server error' });

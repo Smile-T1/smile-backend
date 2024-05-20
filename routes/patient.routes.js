@@ -12,6 +12,7 @@ import {
   getNearestPatientAppointment,
   uploadProfilePicHandler,
   getRecentPatientMedicationsHandler,
+  editAppointmentHandler,
 } from '../controllers/patient.controller.js';
 import uploadfile from '../middleware/multer/uploadReport.js';
 import upload from '../middleware/multer/uploadPhoto.js';
@@ -19,6 +20,8 @@ import uploadSingleCloudinary from '../middleware/cloudinary/uploadToCloudinary.
 const router = express.Router();
 /*Appointments */
 router.post('/appointment', authCheck, checkPatient, uploadfile, uploadSingleCloudinary, bookAppointmentHandler);
+
+router.put('/editAppointment', authCheck, checkPatient, uploadfile, uploadSingleCloudinary, editAppointmentHandler);
 
 router.get(
   '/appointmentsDoctors',
