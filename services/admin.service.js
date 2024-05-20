@@ -72,8 +72,9 @@ const AdminService = {
         .sort({ createdAt: -1 })
         .populate({
           path: 'patient',
-          model: User,
+          model: Patient,
           select: 'firstName lastName',
+          populate: { path: 'user', model: User, select: 'firstName lastName' },
         })
         .populate({
           path: 'doctor',
@@ -87,9 +88,11 @@ const AdminService = {
         return { success: true, data: 'No pending appointments' };
       }
 
+      console.log(pendingAppointments)
+
       // Filter out appointments with null patient or doctor references
       const filteredAppointments = pendingAppointments.filter(
-        (appointment) => appointment.patient && appointment.doctor,
+        (appointment) => appointment.patient,
       );
 
       if (filteredAppointments.length === 0) {
