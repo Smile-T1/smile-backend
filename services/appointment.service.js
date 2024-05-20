@@ -22,7 +22,7 @@ export async function createAppointment(patientId, doctorId, date, time, notes, 
 
 export async function getAppointmentsByPatientId(patientId) {
   try {
-    const appointments = await Appointment.find({ patient: patientId, status: { $ne: 'Pending' } })
+    const appointments = await Appointment.find({ patient: patientId, status: 'Pending'})
       .sort({ appointmentDate: 1 }) // Sort by appointmentDate in ascending order
       .populate({
         path: 'doctor',

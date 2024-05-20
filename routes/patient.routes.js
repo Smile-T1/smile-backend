@@ -13,6 +13,7 @@ import {
   uploadProfilePicHandler,
   getRecentPatientMedicationsHandler,
   editAppointmentHandler,
+  getAllPrescriptionsHandler,
 } from '../controllers/patient.controller.js';
 import uploadfile from '../middleware/multer/uploadReport.js';
 import upload from '../middleware/multer/uploadPhoto.js';
@@ -32,6 +33,7 @@ router.get(
 );
 
 router.get('/allAppointments', authCheck, checkPatient, getAllAppointmentsHandler);
+router.get('/allPrescriptions', authCheck, checkPatient, getAllPrescriptionsHandler);
 
 router.get(
   '/appointment/:id',
