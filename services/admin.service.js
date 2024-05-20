@@ -49,8 +49,17 @@ const AdminService = {
       if (!latestAppointment) {
         throw new Error('No appointments found');
       }
+
+      const filteredAppointments = latestAppointment.filter(
+        (appointment) => appointment.patient && appointment.doctor
+      );
+
+      if(filteredAppointments.length === 0) {
+        return {success: true, data: ""};
+      }
+
   
-      return latestAppointment;
+      return filteredAppointments;
     } catch (error) {
       console.error('Error getting latest appointment:', error);
       throw error;
@@ -101,14 +110,10 @@ const AdminService = {
         throw new Error('Appointment not found');
       }
   
-      if (appointment.status !== 'Pending') {
-        throw new Error('Appointment status is not Pending');
-      }
-  
       if (action === 'accept') {
         appointment.status = 'Upcoming'; // Or any other status you want to set for accepted appointments
       } else if (action === 'decline') {
-        await Appointment.findByIdAndRemove(appointmentId);
+        await Appointment.findByIdAndDelete(appointmentId);
         return { success: true, message: 'Appointment declined and removed from database' };
       } else {
         throw new Error('Invalid action');
