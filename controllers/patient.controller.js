@@ -11,6 +11,7 @@ import {
 import { findUserandUpdateProfilePic } from '../services/user.service.js';
 import { validateAppointmentDate } from '../utils/checkDate.js';
 import { findPatientByUserId } from '../services/patient.service.js';
+import Appointment from '../models/appointment.model.js';
 
 export async function bookAppointmentHandler(req, res) {
   try {
@@ -219,3 +220,90 @@ export async function getRecentPatientMedicationsHandler(req, res) {
     res.status(500).json({ error: 'Internal server error in getRecentPatientMedications' });
   }
 }
+
+export async function editAppointmentHandler(req, res) {
+  try {
+    const userPatientId = req.userId;
+    const patient = await findPatientByUserId(userPatientId);
+    if (!patient) {
+      return res.status(404).json({ msg: 'Patient not found' });
+    }
+
+    const patientId = patient._id;
+
+    const data = JSON.parse(req.body.appointmentDetails);
+    const { appointmentId, doctorUser, dateappointment, appointmentTime, appointmentNotes, appointmentType } = data;
+
+    const existingAppointment = await Appointment.findById(appointmentId);
+    if (!existingAppointment) {
+      return res.status(404).json({ msg: 'Appointment not found' });
+    }
+
+    const doctorId = await findDoctorIdByUsername(doctorUser);
+    const doctor = await findDoctorByDoctorId(doctorId);
+
+    if (!doctor) {
+      return res.status(404).json({ msg: 'Doctor not found' });
+    }
+
+    // Check if appointment time is scheduled in the past
+    const isValidDate = validateAppointmentDate(dateappointment, appointmentTime);
+    if (!isValidDate) {
+      return res.status(400).json({ msg: 'Please choose a valid date' });
+    }
+
+    // Check if doctor has appointments in the same time
+    const appointmentInSameTime = await existsAppointmentInSameTime(
+      patientId,
+      doctorId,
+      dateappointment,
+      appointmentTime,
+      appointmentId, // Exclude current appointment from the check
+    );
+
+    if (appointmentInSameTime) {
+      return res.status(400).json({ msg: 'Doctor or Patient has an appointment at the same time' });
+    }
+
+    // Check if appointment type matches doctor's speciality
+    if (appointmentType && appointmentType !== doctor.speciality) {
+      return res.status(400).json({ msg: 'Doctor speciality does not match with appointment type' });
+    }
+
+    let report;
+    if (res.locals.report) {
+      report = res.locals.report;
+    }
+
+    let updatedAppointment = await Appointment.findById(appointmentId);
+    if (dateappointment) {
+      updatedAppointment.date = dateappointment; 
+    }
+    if (appointmentTime) {
+      updatedAppointment.time = appointmentTime; 
+    }
+    if (doctorId) {
+      updatedAppointment.doctor = doctorId;
+    }
+    if (appointmentNotes) {
+      updatedAppointment.Notes = appointmentNotes;
+    }
+    if (appointmentType) {
+      updatedAppointment.Type = appointmentType;
+    }
+    updatedAppointment.status = 'Pending';
+    
+    updatedAppointment.save();
+
+    if (!updatedAppointment) {
+      return res.status(500).json({ msg: 'Failed to update appointment' });
+    }
+
+    return res.status(200).json({ msg: 'Appointment details updated successfully', updatedAppointment });
+  } catch (error) {
+    console.error('Error editing appointment:', error);
+    return res.status(500).json({ msg: 'Internal server error in editing appointment' });
+  }
+}
+
+
