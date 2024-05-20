@@ -116,6 +116,39 @@ export async function getAllAppointmentsHandler(req, res) {
   }
 }
 
+export async function getAllPrescriptionsHandler(req, res) {
+  try {
+    const userPatientId = req.userId;
+    const patient = await findPatientByUserId(userPatientId);
+    if (!patient) {
+      return res.status(404).json({ msg: 'Patient not found' });
+    }
+
+    const appointments = await Appointment.find({ patient: patient._id })
+      .sort({ appointmentDate: 1 }) // Sort by appointmentDate in ascending order
+      .populate({
+        path: 'doctor',
+        populate: { path: 'user', select: 'username' },
+      });
+
+    // Extract prescriptions from appointments
+    const prescriptions = appointments.map((appointment) => {
+      return {
+        Doctor: appointment.doctor,
+        Speciality: appointment.Type,
+        Date: appointment.date,
+        Time: appointment.time,
+        Prescription: appointment.prescription,
+      };
+    });
+
+    return res.status(200).json(prescriptions);
+  } catch (error) {
+    console.log('Error in getAllPrescriptionsHandler:', error.message);
+    return res.status(500).json({ error: 'Internal server error in getAllPrescriptionsHandler' });
+  }
+}
+
 export async function getPatientAppointmentByIdHandler(req, res) {
   try {
     const userPatientId = req.userId;
@@ -277,10 +310,10 @@ export async function editAppointmentHandler(req, res) {
 
     let updatedAppointment = await Appointment.findById(appointmentId);
     if (dateappointment) {
-      updatedAppointment.date = dateappointment; 
+      updatedAppointment.date = dateappointment;
     }
     if (appointmentTime) {
-      updatedAppointment.time = appointmentTime; 
+      updatedAppointment.time = appointmentTime;
     }
     if (doctorId) {
       updatedAppointment.doctor = doctorId;
@@ -292,7 +325,7 @@ export async function editAppointmentHandler(req, res) {
       updatedAppointment.Type = appointmentType;
     }
     updatedAppointment.status = 'Pending';
-    
+
     updatedAppointment.save();
 
     if (!updatedAppointment) {
@@ -305,5 +338,3 @@ export async function editAppointmentHandler(req, res) {
     return res.status(500).json({ msg: 'Internal server error in editing appointment' });
   }
 }
-
-
