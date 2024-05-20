@@ -45,7 +45,6 @@ async function getList(req, res) {
   }
 }
 
-
 // async function deleteUser(req, res) {
 //   try {
 //     const userId = decodeURIComponent(req.params.userId);
@@ -92,7 +91,7 @@ async function getLatestAppointment(req, res) {
       return res.status(404).json({ message: 'No appointment found' });
     }
 
-    res.status(200).json({data: latestAppointments});
+    res.status(200).json({ data: latestAppointments });
   } catch (error) {
     console.error('Error in getting latest appointment');
     res.status(500).json({ message: 'Error in admin controller', error: error.message });
@@ -101,48 +100,48 @@ async function getLatestAppointment(req, res) {
 
 async function getPendingAppointments(req, res) {
   try {
-    console.log("#####");
+    console.log('#####');
     const pendingAppointments = await AdminService.getPendingAppointments();
     console.log(pendingAppointments);
     console.log('#####');
     if (pendingAppointments.success) {
-      res.status(200).json({data: pendingAppointments.data});
+      res.status(200).json({ data: pendingAppointments.data });
     } else {
-      res.status(400).json({data: pendingAppointments.data});
+      res.status(400).json({ data: pendingAppointments.data });
     }
-  } catch(error) {
+  } catch (error) {
     console.error('Error in getting pending appointments');
-    res.status(500).json({message: 'Error in admin controller', error: error.message});
+    res.status(500).json({ message: 'Error in admin controller', error: error.message });
   }
 }
 
 async function handleAppointmentAction(req, res) {
-  const {appointmentId, action} = req.body;
+  const { appointmentId, action } = req.body;
 
   try {
     const result = await AdminService.handleAppointmentAction(appointmentId, action);
-    if(result.success) {
-      res.status(200).json({message: result.message});
+    if (result.success) {
+      res.status(200).json({ message: result.message });
     } else {
-      res.status(400).json({message: result.message});
+      res.status(400).json({ message: result.message });
     }
   } catch (error) {
-    res.status(500).json({message: error.message});
+    res.status(500).json({ message: error.message });
   }
 }
 
 async function getAppointmentsByStatus(req, res) {
-  const {status} = req.params;
+  const { status } = req.params;
 
   try {
     const appointments = await AdminService.getAppointmentsByStatus(status);
-    if(appointments.success) {
-      res.status(200).json({data: appointments.data});
+    if (appointments.success) {
+      res.status(200).json({ data: appointments.data });
     } else {
-      res.status(400).json({data: appointments.data});
+      res.status(400).json({ data: appointments.data });
     }
   } catch (error) {
-    res.status(500).json({message: error.message});
+    res.status(500).json({ message: error.message });
   }
 }
 
@@ -156,4 +155,13 @@ async function deleteUser(req, res) {
   }
 }
 
-export default { getList, deleteUser, getTotalCounts, getLatestAppointment, getPendingAppointments, handleAppointmentAction, getAppointmentsByStatus, deleteUser };
+export default {
+  getList,
+  deleteUser,
+  getTotalCounts,
+  getLatestAppointment,
+  getPendingAppointments,
+  handleAppointmentAction,
+  getAppointmentsByStatus,
+  deleteUser,
+};

@@ -90,26 +90,25 @@ async function getSettingsHandler(req, res) {
 
 async function changePasswordHandler(req, res) {
   try {
-    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
     const user = await findUserById(req.userId);
     const isPasswordCorrect = await bcrypt.compare(currentPassword, user?.password || '');
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ msg: 'User not found' });
     }
     if (!isPasswordCorrect) {
-      return res.status(404).json({ message: 'Old password is incorrect' });
+      return res.status(404).json({ msg: 'Current password is incorrect' });
     }
-
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({ message: 'Confirm password must match new password' });
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ msg: 'New password cannot be the same as current password' });
     }
     // HASH PASSWORD HERE
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
     user.password = hashedPassword;
     await user.save();
-    return res.status(200).json({ message: 'Password changed successfully' });
+    return res.status(200).json({ msg: 'Password changed successfully' });
   } catch (error) {
     console.error('Error changing password:', error);
     return res.status(500).json({ message: 'Internal server error' });
@@ -118,19 +117,46 @@ async function changePasswordHandler(req, res) {
 
 async function editSettingsHandler(req, res) {
   try {
-    const { name, email, phone } = req.body;
     const user = await findUserById(req.userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ msg: 'User not found' });
     }
-    user.name = name;
-    user.email = email;
-    user.phone = phone;
+    //get the profile picture if uploaded from the res locals
+    let profilePic;
+    if (res.locals.report) {
+      profilePic = res.locals.report;
+    }
+    let settingsData;
+    let address, phone;
+    try {
+      if (req.body.settingsDetails) {
+        settingsData = JSON.parse(req.body.settingsDetails);
+      }
+    } catch (parseError) {
+      return res.status(400).json({ msg: 'Invalid settings details format' });
+    }
+    if (settingsData) {
+      address = settingsData.address;
+      phone = settingsData.phone;
+    }
+
+    if (!address && !phone && !profilePic) {
+      return res.status(400).json({ msg: 'No changes made' });
+    }
+    if (address) {
+      user.address = address;
+    }
+    if (phone) {
+      user.mobile = phone;
+    }
+    if (profilePic) {
+      user.profilePic = profilePic;
+    }
     await user.save();
-    return res.status(200).json({ message: 'Settings updated successfully' });
+    return res.status(200).json({ msg: 'Settings updated successfully', user: user });
   } catch (error) {
     console.error('Error editing settings:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ msg: 'Internal server error in editSettings' });
   }
 }
 export default { getnfo, getSettingsHandler, changePasswordHandler, editSettingsHandler };
