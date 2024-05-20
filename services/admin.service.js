@@ -92,7 +92,7 @@ const AdminService = {
 
       // Filter out appointments with null patient or doctor references
       const filteredAppointments = pendingAppointments.filter(
-        (appointment) => appointment.patient,
+        (appointment) => appointment.patient && appointment.doctor,
       );
 
       if (filteredAppointments.length === 0) {
