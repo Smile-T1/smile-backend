@@ -69,6 +69,7 @@ const AdminService = {
   async getPendingAppointments() {
     try {
       const pendingAppointments = await Appointment.find({ status: 'Pending' })
+        .sort({createdAt: -1})
         .populate({
           path: 'patient',
           model: User,
