@@ -159,7 +159,7 @@ const AdminService = {
       await Appointment.deleteMany({ $or: [{ patient: user._id }, { doctor: user._id }] });
   
       // Delete the user
-      await User.findOneAndDelete({ user });
+      await User.findOneAndDelete({ _id: user._id });
   
       return { success: true, message: 'User and related data deleted successfully' };
     } catch (error) {
