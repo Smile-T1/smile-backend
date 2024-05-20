@@ -46,25 +46,25 @@ async function getList(req, res) {
 }
 
 
-async function deleteUser(req, res) {
-  try {
-    const userId = decodeURIComponent(req.params.userId);
-    const type = req.params.type;
-    console.log(userId);
-    switch (type) {
-      case 'patient':
-        await Patient.findOneAndDelete({ user: userId });
-        break;
-      case 'doctor':
-        await Doctor.findOneAndDelete({ user: userId });
-        break;
-    }
-    res.status(200).json({ message: 'User deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
-}
+// async function deleteUser(req, res) {
+//   try {
+//     const userId = decodeURIComponent(req.params.userId);
+//     const type = req.params.type;
+//     console.log(userId);
+//     switch (type) {
+//       case 'patient':
+//         await Patient.findOneAndDelete({ user: userId });
+//         break;
+//       case 'doctor':
+//         await Doctor.findOneAndDelete({ user: userId });
+//         break;
+//     }
+//     res.status(200).json({ message: 'User deleted successfully' });
+//   } catch (error) {
+//     console.error('Error deleting user:', error);
+//     return res.status(500).json({ message: 'Internal server error' });
+//   }
+// }
 
 async function getTotalCounts(req, res) {
   console.log(req.userId);
@@ -146,4 +146,14 @@ async function getAppointmentsByStatus(req, res) {
   }
 }
 
-export default { getList, deleteUser, getTotalCounts, getLatestAppointment, getPendingAppointments, handleAppointmentAction, getAppointmentsByStatus };
+async function deleteUser(req, res) {
+  const { username } = req.params;
+  try {
+    const result = await AdminService.deleteUserByUsername(username);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+export default { getList, deleteUser, getTotalCounts, getLatestAppointment, getPendingAppointments, handleAppointmentAction, getAppointmentsByStatus, deleteUser };

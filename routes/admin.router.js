@@ -13,6 +13,7 @@ router.get('/pendingAppoitments', authCheck, adminCheck, adminController.getPend
 router.get('/latestAppointment', authCheck, adminCheck, adminController.getLatestAppointment);
 router.get('/:type', authCheck, adminCheck, adminController.getList);
 
-router.delete('/delete/:type/:userId', authCheck, adminCheck, adminController.deleteUser);
+// router.delete('/delete/:type/:userId', authCheck, adminCheck, adminController.deleteUser);
+router.delete('/users/:username', adminController.deleteUser);
 
 export default router;

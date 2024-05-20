@@ -51,7 +51,7 @@ const AdminService = {
       }
 
       const filteredAppointments = latestAppointment.filter(
-        (appointment) => appointment.patient && appointment.doctor
+        (appointment) => appointment.patient && appointment.doctor && appointment.status != "Pending"
       );
 
       if(filteredAppointments.length === 0) {
@@ -140,6 +140,29 @@ const AdminService = {
     } catch (error) {
       console.error(`Cannot get ${status} appointments`, error);
       throw new Error(`Cannot get ${status} appointments`);
+    }
+  },
+
+  async  deleteUserByUsername(username) {
+    try {
+      console.log(username)
+      // Find the user by username
+      const user = await User.findOne({ username });
+  
+      if (!user) {
+        throw new Error('User not found');
+      }
+  
+      // Delete user-related appointments
+      await Appointment.deleteMany({ $or: [{ patient: user._id }, { doctor: user._id }] });
+  
+      // Delete the user
+      await User.findOneAndDelete({ username });
+  
+      return { success: true, message: 'User and related data deleted successfully' };
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw new Error('Error deleting user');
     }
   }
 };
