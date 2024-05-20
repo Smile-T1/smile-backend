@@ -26,27 +26,21 @@ export async function findDoctorsBySpeciality(speciality) {
     console.log('query:', query);
     const doctors = await Doctor.find(query).populate({
       path: 'user',
-      select: 'username firstName lastName',
+      select: 'username',
     });
     console.log('doctors:', doctors);
     //const populatedDoctors = await Doctor.populate(doctors, { path: 'user', select: 'username' });
-    const doctorDetails = doctors
-      .map((doctor) => {
-        const user = doctor.user;
-        return user ? { username: user.username, firstName: user.firstName, lastName: user.lastName } : null;
-      })
-      .filter(Boolean);
-
-    return doctorDetails;
+    const doctorUserNames = doctors.map((doctor) => doctor.user?.username).filter(Boolean);
+    //apply pagination
     // const startIndex = (page - 1) * limit;
     // const endIndex = page * limit;
     // const paginatedUsers = doctorUserNames.slice(startIndex, endIndex);
+    return doctorUserNames;
   } catch (error) {
     console.error('Error finding doctors by speciality:', error);
     throw new appError('Failed to find doctors', 500);
   }
 }
-
 export async function findDoctorByDoctorId(id) {
   try {
     const doctor = await Doctor.findById(id);
