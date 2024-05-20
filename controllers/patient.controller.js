@@ -5,7 +5,8 @@ import {
   getAppointmentForPatient,
   getAppointmentsByPatientId,
   updateAppointmentStatus,
-  getNearestPendingAppointmentForPatient,
+  getNearestUpcomingAppointmentForPatient,
+  getRecentPatientMedications,
 } from '../services/appointment.service.js';
 import { findUserandUpdateProfilePic } from '../services/user.service.js';
 import { validateAppointmentDate } from '../utils/checkDate.js';
@@ -163,11 +164,12 @@ export async function getNearestPatientAppointment(req, res) {
   try {
     const userPatientId = req.userId;
     const patient = await findPatientByUserId(userPatientId);
+    console.log('patient', patient);
     if (!patient) {
       return res.status(404).json({ msg: 'Patient not found' });
     }
     const patientId = patient._id;
-    const newestAppointment = await getNearestPendingAppointmentForPatient(patientId);
+    const newestAppointment = await getNearestUpcomingAppointmentForPatient(patientId);
     return res.status(200).json({ newestAppointment });
   } catch (error) {
     console.log('Error in getNearestPatientAppointment controller', error.message);
@@ -198,5 +200,22 @@ export async function uploadProfilePicHandler(req, res) {
   } catch (error) {
     console.log('Error in uploadProfilePic controller', error.message);
     res.status(500).json({ error: 'Internal server error in uploadProfilePic' });
+  }
+}
+
+export async function getRecentPatientMedicationsHandler(req, res) {
+  try {
+    const userPatientId = req.userId;
+    const patient = await findPatientByUserId(userPatientId);
+    if (!patient) {
+      return res.status(404).json({ msg: 'Patient not found' });
+    }
+
+    const patientId = patient._id;
+    const prescriptions = await getRecentPatientMedications(patientId);
+    return res.status(200).json({ prescriptions });
+  } catch (error) {
+    console.log('Error in getRecentPatientMedications controller', error.message);
+    res.status(500).json({ error: 'Internal server error in getRecentPatientMedications' });
   }
 }

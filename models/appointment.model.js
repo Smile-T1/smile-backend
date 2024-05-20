@@ -23,6 +23,9 @@ const appointmentSchema = new mongoose.Schema(
     appointmentDate: {
       type: Date,
     },
+    appointmentDay: {
+      type: String,
+    },
     status: {
       type: String,
       enum: ['Upcoming', 'Cancelled', 'Completed', 'Pending'],
@@ -69,6 +72,8 @@ const appointmentSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 // Middleware to convert date and time to appointmentDate
 appointmentSchema.pre('save', function (next) {
   if (this.date && this.time) {
@@ -78,6 +83,7 @@ appointmentSchema.pre('save', function (next) {
     const adjustedHour = (hour % 12) + (isPM ? 12 : 0);
 
     this.appointmentDate = new Date(year, month - 1, day, adjustedHour, minute);
+    this.appointmentDay = daysOfWeek[this.appointmentDate.getDay()];
   }
   next();
 });

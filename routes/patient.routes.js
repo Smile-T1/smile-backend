@@ -11,6 +11,7 @@ import {
   deletePatientAppointmentByIdHandler,
   getNearestPatientAppointment,
   uploadProfilePicHandler,
+  getRecentPatientMedicationsHandler,
 } from '../controllers/patient.controller.js';
 import uploadfile from '../middleware/multer/uploadReport.js';
 import upload from '../middleware/multer/uploadPhoto.js';
@@ -55,5 +56,7 @@ router.post(
   uploadSingleCloudinary,
   uploadProfilePicHandler,
 );
+
+router.get('/recentMedications', authCheck, checkPatient, getRecentPatientMedicationsHandler);
 
 export default router;

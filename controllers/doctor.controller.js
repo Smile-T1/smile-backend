@@ -19,9 +19,9 @@ async function getDoctorPatients(req, res) {
 
     const doctorID = doctor._id;
     // get all appointments linked to this doctor
-    const linkedAppointments = await Appointment.find({ doctor: doctorID }).populate({
+    const linkedAppointments = await Appointment.find({ doctor: doctorID, status: { $ne: 'Pending' } }).populate({
       path: 'patient',
-      populate: { path: 'user' } // Populate the user field in patients
+      populate: { path: 'user' }, // Populate the user field in patients
     });
 
     if (!linkedAppointments || linkedAppointments.length === 0) {
@@ -123,7 +123,7 @@ async function getDoctorsAppointments(req, res) {
     const doctorID = doctor._id;
 
     // get all appointments and populate the 'patient' field with patient information
-    const appointments = await Appointment.find({ doctor: doctorID }).populate('patient');
+    const appointments = await Appointment.find({ doctor: doctorID, status: { $ne: 'Pending' } }).populate('patient');
 
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({ message: 'No appointments found' });
@@ -160,8 +160,6 @@ async function getDoctorsAppointments(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
-
-
 
 async function deleteDoctorAppointment(req, res) {
   try {
@@ -220,6 +218,14 @@ async function addPrescription(req, res) {
       return res.status(403).json({ message: 'You are not authorized to update this appointment' });
     }
 
+    //check appointment time has come or not
+    const now = new Date();
+    //add 3 hours to current time
+    const { appointmentDate } = appointment.appointmentDate;
+
+    if (appointmentDate > now) {
+      return res.status(400).json({ message: 'Appointment time has not come' });
+    }
     // Update the appointment with prescription details
     appointment.prescription = {
       Medication,
@@ -227,6 +233,7 @@ async function addPrescription(req, res) {
       Consultation,
     };
 
+    appointment.status = 'Completed';
     // Save the updated appointment
     await appointment.save();
 
@@ -244,6 +251,5 @@ async function addPrescription(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
-
 
 export default { getDoctorPatients, editPatientInfo, getDoctorsAppointments, deleteDoctorAppointment, addPrescription };

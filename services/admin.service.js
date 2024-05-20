@@ -4,8 +4,6 @@ import Doctor from '../models/doctor.model.js';
 import Patient from '../models/patient.model.js';
 import User from '../models/user.model.js';
 
-
-
 const AdminService = {
   async getTotalDoctors() {
     try {
@@ -41,27 +39,26 @@ const AdminService = {
         .populate({
           path: 'patient',
           model: Patient,
-          populate: { path: 'user', model: User, select: 'firstName lastName'},
+          populate: { path: 'user', model: User, select: 'firstName lastName' },
         })
         .populate({
           path: 'doctor',
           model: Doctor,
           populate: { path: 'user', model: User, select: 'firstName lastName' },
         });
-  
+
       if (!latestAppointment) {
         throw new Error('No appointments found');
       }
 
       const filteredAppointments = latestAppointment.filter(
-        (appointment) => appointment.patient && appointment.doctor && appointment.status != "Pending"
+        (appointment) => appointment.patient && appointment.doctor && appointment.status != 'Pending',
       );
 
-      if(filteredAppointments.length === 0) {
-        return {success: true, data: ""};
+      if (filteredAppointments.length === 0) {
+        return { success: true, data: '' };
       }
 
-  
       return filteredAppointments;
     } catch (error) {
       console.error('Error getting latest appointment:', error);
@@ -72,7 +69,7 @@ const AdminService = {
   async getPendingAppointments() {
     try {
       const pendingAppointments = await Appointment.find({ status: 'Pending' })
-        .sort({createdAt: -1})
+        .sort({ createdAt: -1 })
         .populate({
           path: 'patient',
           model: User,
@@ -85,20 +82,20 @@ const AdminService = {
           populate: { path: 'user', model: User, select: 'firstName lastName' },
         })
         .select('date time Type');
-  
+
       if (pendingAppointments.length === 0) {
         return { success: true, data: 'No pending appointments' };
       }
-  
+
       // Filter out appointments with null patient or doctor references
       const filteredAppointments = pendingAppointments.filter(
-        (appointment) => appointment.patient && appointment.doctor
+        (appointment) => appointment.patient && appointment.doctor,
       );
-  
+
       if (filteredAppointments.length === 0) {
-        return { success: true, data: ""};
+        return { success: true, data: '' };
       }
-  
+
       return { success: true, data: filteredAppointments };
     } catch (error) {
       console.error('Cannot get pending appointments', error);
@@ -109,11 +106,11 @@ const AdminService = {
   async handleAppointmentAction(appointmentId, action) {
     try {
       let appointment = await Appointment.findById(appointmentId);
-      
+
       if (!appointment) {
         throw new Error('Appointment not found');
       }
-  
+
       if (action === 'accept') {
         appointment.status = 'Upcoming'; // Or any other status you want to set for accepted appointments
       } else if (action === 'decline') {
@@ -122,7 +119,7 @@ const AdminService = {
       } else {
         throw new Error('Invalid action');
       }
-  
+
       await appointment.save();
       return { success: true, message: 'Appointment action successfully processed' };
     } catch (error) {
@@ -134,11 +131,11 @@ const AdminService = {
   async getAppointmentsByStatus(status) {
     try {
       const appointments = await Appointment.find({ status });
-  
+
       if (appointments.length === 0) {
         return { success: true, data: `No ${status} appointments` };
       }
-  
+
       return { success: true, data: appointments };
     } catch (error) {
       console.error(`Cannot get ${status} appointments`, error);
@@ -146,27 +143,27 @@ const AdminService = {
     }
   },
 
-  async  deleteUserByUsername(userId) {
+  async deleteUserByUsername(userId) {
     try {
       // Find the user by username
-      const user = await User.findOne({ _id: userId});
-  
+      const user = await User.findOne({ _id: userId });
+
       if (!user) {
         throw new Error('User not found');
       }
-  
+
       // Delete user-related appointments
       await Appointment.deleteMany({ $or: [{ patient: user._id }, { doctor: user._id }] });
-  
+
       // Delete the user
       await User.findOneAndDelete({ _id: user._id });
-  
+
       return { success: true, message: 'User and related data deleted successfully' };
     } catch (error) {
       console.error('Error deleting user:', error);
       throw new Error('Error deleting user');
     }
-  }
+  },
 };
 
 export default AdminService;

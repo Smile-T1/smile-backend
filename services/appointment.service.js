@@ -109,14 +109,14 @@ export async function getNewestAppointmentForPatient(patientId) {
   }
 }
 
-export async function getNearestPendingAppointmentForPatient(patientId) {
+export async function getNearestUpcomingAppointmentForPatient(patientId) {
   try {
     const currentDate = new Date();
+    console.log('currentDate:', currentDate);
     // Find the nearest upcoming appointment for the patient
     const nearestAppointment = await Appointment.findOne({
       patient: patientId,
-      appointmentDate: { $gte: currentDate }, // Only consider appointments with a future date
-      status: 'Upcoming', // Assuming 'Upcoming' is the status for future appointments
+      status: 'Upcoming', // Only fetch upcoming appointments
     })
       .sort({ appointmentDate: 1 }) // Sort by appointmentDate in ascending order
       .populate({
@@ -127,5 +127,17 @@ export async function getNearestPendingAppointmentForPatient(patientId) {
   } catch (error) {
     console.error('Error fetching nearest pending appointment:', error);
     throw new Error('Failed to fetch nearest pending appointment');
+  }
+}
+
+export async function getRecentPatientMedications(patientId) {
+  try {
+    // Query appointments for the patient with the given ID
+    const prescriptions = await Appointment.find({ patient: patientId, status: 'Completed' }).select('prescription');
+
+    return prescriptions; // Return the newest appointment
+  } catch (error) {
+    console.error('Error fetching recent medications:', error);
+    throw new Error('Failed to fetch recent medications');
   }
 }
