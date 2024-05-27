@@ -44,7 +44,7 @@ This application serves as the server-side for a dentistry clinic management sys
    ```
 
 ## Contributers
-- Sharif Elmasry
-- Nada Mohamed
-- Youssef Wael
+- Sharif Ehab
+- Nada Alfowey
+- Yousef Wael
 - Hassan Elsheikh
